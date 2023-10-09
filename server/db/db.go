@@ -22,3 +22,11 @@ func NewDatabase() (*Database, error) {
 func (d *Database) Close() error {
 	return d.db.Close()
 }
+
+func (d *Database) GetDB() *sql.DB {
+	return d.db
+}
+
+func (d *Database) Ping() error {
+	return d.db.Ping()
+}

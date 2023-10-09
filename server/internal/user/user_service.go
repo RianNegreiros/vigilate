@@ -13,7 +13,7 @@ type service struct {
 	contextTimeout time.Duration
 }
 
-func NewService(repository Repository) Service {
+func NewService(repository Repository) UserService {
 	return &service{
 		userRepo:       repository,
 		contextTimeout: time.Duration(2) * time.Second,
