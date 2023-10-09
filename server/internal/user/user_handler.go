@@ -21,6 +21,7 @@ func NewUserHandler(e *echo.Echo, userService UserService) {
 
 	e.POST("/signup", handler.CreateUser)
 	e.POST("/login", handler.Login)
+	e.GET("/logout", handler.Logout)
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
@@ -55,6 +56,13 @@ func (h *UserHandler) Login(c echo.Context) error {
 
 	writeCookie(c, "jwt", u.accessToken, 60*60*24)
 	return c.JSON(http.StatusOK, u)
+}
+
+func (h *UserHandler) Logout(c echo.Context) error {
+	writeCookie(c, "jwt", "", -1)
+	c.JSON(http.StatusOK, echo.Map{"message": "logout success"})
+
+	return nil
 }
 
 func writeCookie(c echo.Context, name, value string, maxAge int) {
