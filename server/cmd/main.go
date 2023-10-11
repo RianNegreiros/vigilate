@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/RianNegreiros/vigilate/db"
+	"github.com/RianNegreiros/vigilate/internal/service"
 	"github.com/RianNegreiros/vigilate/internal/user"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
 func main() {
@@ -29,11 +29,13 @@ func main() {
 
 	e := echo.New()
 
-	e.Use(middleware.CSRF())
-
 	userRepo := user.NewRepository(dbConn.GetDB())
 	userService := user.NewService(userRepo)
 	user.NewUserHandler(e, userService)
+
+	serviceRepo := service.NewRepository(dbConn.GetDB())
+	serviceService := service.NewService(serviceRepo)
+	service.NewServiceHandler(e, serviceService)
 
 	log.Fatal(e.Start(":8080"))
 }

@@ -15,14 +15,14 @@ type Service struct {
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 }
 
-type CreateServiceRequest struct {
+type ServiceRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	URL         string `json:"url"`
 	Status      string `json:"status"`
 }
 
-type CreateServiceResponse struct {
+type ServiceResponse struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -32,8 +32,10 @@ type CreateServiceResponse struct {
 
 type ServiceRepository interface {
 	CreateService(ctx context.Context, service *Service) (*Service, error)
+	GetServiceByID(ctx context.Context, id int64) (*Service, error)
 }
 
 type ServiceService interface {
-	CreateService(ctx context.Context, req *CreateServiceRequest) (*CreateServiceResponse, error)
+	CreateService(ctx context.Context, req *ServiceRequest) (*ServiceResponse, error)
+	GetServiceByID(ctx context.Context, id string) (*ServiceResponse, error)
 }
