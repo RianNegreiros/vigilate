@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type service struct {
+type Service struct {
 	ID          int64     `json:"id" db:"id"`
 	Name        string    `json:"name" db:"name"`
 	Description string    `json:"description" db:"description"`
@@ -31,7 +31,7 @@ type CreateServiceResponse struct {
 }
 
 type ServiceRepository interface {
-	CreateService(ctx context.Context, service *service) (*service, error)
+	CreateService(ctx context.Context, service *Service) (*Service, error)
 }
 
 type ServiceService interface {
