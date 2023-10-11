@@ -5,8 +5,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/RianNegreiros/vigilate/internal/errors"
 	"github.com/RianNegreiros/vigilate/util"
 	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -29,6 +31,11 @@ func NewService(repository Repository) UserService {
 func (s *service) CreateUser(ctx context.Context, req *CreateUserRequest) (*CreateUserResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
+
+	_, err := s.userRepo.GetUserByEmail(ctx, req.Email)
+	if err != nil {
+		return nil, errors.ErrDuplicateEmail
+	}
 
 	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
@@ -65,11 +72,13 @@ func (s *service) Login(c context.Context, req *LoginUserRequest) (*LoginUserRes
 
 	u, err := s.userRepo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
-		return &LoginUserResponse{}, err
+		return &LoginUserResponse{}, errors.ErrNoRecord
 	}
 
 	err = util.CheckPassword(req.Password, u.Password)
-	if err != nil {
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return &LoginUserResponse{}, errors.ErrInvalidCredentials
+	} else if err != nil {
 		return &LoginUserResponse{}, err
 	}
 
