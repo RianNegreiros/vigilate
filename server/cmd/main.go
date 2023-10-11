@@ -6,6 +6,7 @@ import (
 	"github.com/RianNegreiros/vigilate/db"
 	"github.com/RianNegreiros/vigilate/internal/user"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 func main() {
@@ -27,6 +28,8 @@ func main() {
 	}()
 
 	e := echo.New()
+
+	e.Use(middleware.CSRF())
 
 	userRepo := user.NewRepository(dbConn.GetDB())
 	userService := user.NewService(userRepo)
