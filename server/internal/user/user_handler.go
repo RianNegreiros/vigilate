@@ -6,6 +6,8 @@ import (
 	"github.com/labstack/echo"
 )
 
+const cookieAge = 7 * 24 * 60 * 60 // 7 days
+
 type ResponseError struct {
 	Message string `json:"message"`
 }
@@ -54,7 +56,7 @@ func (h *UserHandler) Login(c echo.Context) error {
 		return nil
 	}
 
-	writeCookie(c, "jwt", u.accessToken, 60*60*24)
+	writeCookie(c, "jwt", u.accessToken, cookieAge) // 7 days
 	return c.JSON(http.StatusOK, u)
 }
 

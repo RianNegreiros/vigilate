@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	secretKey = "secret"
+	SecretKey = "secret"
 	domain    = "localhost"
 )
 
@@ -32,8 +32,8 @@ func (s *service) CreateUser(ctx context.Context, req *CreateUserRequest) (*Crea
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
-	_, err := s.userRepo.GetUserByEmail(ctx, req.Email)
-	if err != nil {
+	userExists, _ := s.userRepo.GetUserByEmail(ctx, req.Email)
+	if userExists.Email != "" {
 		return nil, errors.ErrDuplicateEmail
 	}
 
@@ -91,7 +91,7 @@ func (s *service) Login(c context.Context, req *LoginUserRequest) (*LoginUserRes
 		},
 	})
 
-	ss, err := token.SignedString([]byte(secretKey))
+	ss, err := token.SignedString([]byte(SecretKey))
 	if err != nil {
 		return &LoginUserResponse{}, err
 	}
