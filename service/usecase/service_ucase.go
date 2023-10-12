@@ -1,28 +1,30 @@
-package service
+package usecase
 
 import (
 	"context"
 	"strconv"
 	"time"
+
+	"github.com/RianNegreiros/vigilate/domain"
 )
 
-type service struct {
-	serviceRepo    ServiceRepository
+type serviceUsecase struct {
+	serviceRepo    domain.ServiceRepository
 	contextTimeout time.Duration
 }
 
-func NewService(repository ServiceRepository) ServiceService {
-	return &service{
-		serviceRepo:    repository,
-		contextTimeout: time.Duration(2) * time.Second,
+func NewServiceUsecase(s domain.ServiceRepository, timeout time.Duration) domain.ServiceUsecase {
+	return &serviceUsecase{
+		serviceRepo:    s,
+		contextTimeout: timeout,
 	}
 }
 
-func (s *service) CreateService(ctx context.Context, req *ServiceRequest) (*ServiceResponse, error) {
+func (s *serviceUsecase) CreateService(ctx context.Context, req *domain.ServiceRequest) (*domain.ServiceResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
-	service := &Service{
+	service := &domain.Service{
 		Name:        req.Name,
 		Description: req.Description,
 		URL:         req.URL,
@@ -34,7 +36,7 @@ func (s *service) CreateService(ctx context.Context, req *ServiceRequest) (*Serv
 		return nil, err
 	}
 
-	return &ServiceResponse{
+	return &domain.ServiceResponse{
 		ID:          strconv.Itoa(int(service.ID)),
 		Name:        service.Name,
 		Description: service.Description,
@@ -43,21 +45,21 @@ func (s *service) CreateService(ctx context.Context, req *ServiceRequest) (*Serv
 	}, nil
 }
 
-func (s *service) GetServiceByID(ctx context.Context, id string) (*ServiceResponse, error) {
+func (s *serviceUsecase) GetServiceByID(ctx context.Context, id string) (*domain.ServiceResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
 	serviceID, err := strconv.Atoi(id)
 	if err != nil {
-		return &ServiceResponse{}, err
+		return &domain.ServiceResponse{}, err
 	}
 
 	service, err := s.serviceRepo.GetServiceByID(ctx, int64(serviceID))
 	if err != nil {
-		return &ServiceResponse{}, err
+		return &domain.ServiceResponse{}, err
 	}
 
-	return &ServiceResponse{
+	return &domain.ServiceResponse{
 		ID:          strconv.Itoa(int(service.ID)),
 		Name:        service.Name,
 		Description: service.Description,

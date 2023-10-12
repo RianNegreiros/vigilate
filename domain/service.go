@@ -1,4 +1,4 @@
-package service
+package domain
 
 import (
 	"context"
@@ -35,7 +35,7 @@ type ServiceRepository interface {
 	GetServiceByID(ctx context.Context, id int64) (*Service, error)
 }
 
-type ServiceService interface {
+type ServiceUsecase interface {
 	CreateService(ctx context.Context, req *ServiceRequest) (*ServiceResponse, error)
 	GetServiceByID(ctx context.Context, id string) (*ServiceResponse, error)
 }

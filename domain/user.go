@@ -1,4 +1,4 @@
-package user
+package domain
 
 import (
 	"context"
@@ -32,17 +32,17 @@ type LoginUserRequest struct {
 }
 
 type LoginUserResponse struct {
-	accessToken string
+	AccessToken string `json:"access_token"`
 	ID          string `json:"id"`
 	Username    string `json:"username"`
 }
 
-type Repository interface {
+type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 }
 
-type UserService interface {
+type UserUsecase interface {
 	CreateUser(ctx context.Context, req *CreateUserRequest) (*CreateUserResponse, error)
 	Login(ctx context.Context, req *LoginUserRequest) (*LoginUserResponse, error)
 }

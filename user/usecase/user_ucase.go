@@ -1,11 +1,11 @@
-package user
+package usecase
 
 import (
 	"context"
 	"strconv"
 	"time"
 
-	"github.com/RianNegreiros/vigilate/internal/errors"
+	"github.com/RianNegreiros/vigilate/domain"
 	"github.com/RianNegreiros/vigilate/util"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -13,28 +13,27 @@ import (
 
 const (
 	SecretKey = "secret"
-	domain    = "localhost"
 )
 
-type service struct {
-	userRepo       Repository
+type userUsecase struct {
+	userRepo       domain.UserRepository
 	contextTimeout time.Duration
 }
 
-func NewService(repository Repository) UserService {
-	return &service{
-		userRepo:       repository,
-		contextTimeout: time.Duration(2) * time.Second,
+func NewUserUsecase(u domain.UserRepository, timeout time.Duration) domain.UserUsecase {
+	return &userUsecase{
+		userRepo:       u,
+		contextTimeout: timeout,
 	}
 }
 
-func (s *service) CreateUser(ctx context.Context, req *CreateUserRequest) (*CreateUserResponse, error) {
+func (s *userUsecase) CreateUser(ctx context.Context, req *domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
 	userExists, _ := s.userRepo.GetUserByEmail(ctx, req.Email)
 	if userExists.Email != "" {
-		return nil, errors.ErrDuplicateEmail
+		return nil, domain.ErrDuplicateEmail
 	}
 
 	hashedPassword, err := util.HashPassword(req.Password)
@@ -42,7 +41,7 @@ func (s *service) CreateUser(ctx context.Context, req *CreateUserRequest) (*Crea
 		return nil, err
 	}
 
-	user := &User{
+	user := &domain.User{
 		Username: req.Username,
 		Password: hashedPassword,
 		Email:    req.Email,
@@ -53,7 +52,7 @@ func (s *service) CreateUser(ctx context.Context, req *CreateUserRequest) (*Crea
 		return nil, err
 	}
 
-	return &CreateUserResponse{
+	return &domain.CreateUserResponse{
 		ID:       strconv.Itoa(int(user.ID)),
 		Username: user.Username,
 		Email:    user.Email,
@@ -66,20 +65,20 @@ type MyJWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-func (s *service) Login(c context.Context, req *LoginUserRequest) (*LoginUserResponse, error) {
+func (s *userUsecase) Login(c context.Context, req *domain.LoginUserRequest) (*domain.LoginUserResponse, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
 
 	u, err := s.userRepo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
-		return &LoginUserResponse{}, errors.ErrNoRecord
+		return &domain.LoginUserResponse{}, domain.ErrNoRecord
 	}
 
 	err = util.CheckPassword(req.Password, u.Password)
 	if err == bcrypt.ErrMismatchedHashAndPassword {
-		return &LoginUserResponse{}, errors.ErrInvalidCredentials
+		return &domain.LoginUserResponse{}, domain.ErrInvalidCredentials
 	} else if err != nil {
-		return &LoginUserResponse{}, err
+		return &domain.LoginUserResponse{}, err
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyJWTClaims{
@@ -93,8 +92,8 @@ func (s *service) Login(c context.Context, req *LoginUserRequest) (*LoginUserRes
 
 	ss, err := token.SignedString([]byte(SecretKey))
 	if err != nil {
-		return &LoginUserResponse{}, err
+		return &domain.LoginUserResponse{}, err
 	}
 
-	return &LoginUserResponse{accessToken: ss, Username: u.Username, ID: strconv.Itoa(int(u.ID))}, nil
+	return &domain.LoginUserResponse{AccessToken: ss, Username: u.Username, ID: strconv.Itoa(int(u.ID))}, nil
 }
