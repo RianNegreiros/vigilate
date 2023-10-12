@@ -31,13 +31,13 @@ func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
 func (h *UserHandler) CreateUser(c echo.Context) error {
 	var u domain.CreateUserRequest
 	if err := c.Bind(&u); err != nil {
-		c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
 		return nil
 	}
 
 	res, err := h.UserUsecase.CreateUser(c.Request().Context(), &u)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
 		return nil
 	}
 
@@ -48,13 +48,13 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 func (h *UserHandler) Login(c echo.Context) error {
 	var user domain.LoginUserRequest
 	if err := c.Bind(&user); err != nil {
-		c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
 		return nil
 	}
 
 	u, err := h.UserUsecase.Login(c.Request().Context(), &user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
 		return nil
 	}
 
