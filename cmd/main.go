@@ -2,10 +2,17 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/RianNegreiros/vigilate/db"
-	"github.com/RianNegreiros/vigilate/internal/service"
-	"github.com/RianNegreiros/vigilate/internal/user"
+	_userHandler "github.com/RianNegreiros/vigilate/user/delivery/http"
+	_userRepo "github.com/RianNegreiros/vigilate/user/repository/postgres"
+	_userUsecase "github.com/RianNegreiros/vigilate/user/usecase"
+
+	_serviceHandler "github.com/RianNegreiros/vigilate/service/delivery/http"
+	_serviceRepo "github.com/RianNegreiros/vigilate/service/repository/postgres"
+	_serviceUsecase "github.com/RianNegreiros/vigilate/service/usecase"
+
 	"github.com/labstack/echo"
 )
 
@@ -29,13 +36,15 @@ func main() {
 
 	e := echo.New()
 
-	userRepo := user.NewRepository(dbConn.GetDB())
-	userService := user.NewService(userRepo)
-	user.NewUserHandler(e, userService)
+	contextTimeout := time.Duration(5) * time.Second
 
-	serviceRepo := service.NewRepository(dbConn.GetDB())
-	serviceService := service.NewService(serviceRepo)
-	service.NewServiceHandler(e, serviceService)
+	ur := _userRepo.NewPostgresUserRepo(dbConn.GetDB())
+	uu := _userUsecase.NewUserUsecase(ur, contextTimeout)
+	_userHandler.NewUserHandler(e, uu)
+
+	sr := _serviceRepo.NewPostgresServiceRepo(dbConn.GetDB())
+	su := _serviceUsecase.NewServiceUsecase(sr, contextTimeout)
+	_serviceHandler.NewServiceHandler(e, su)
 
 	log.Fatal(e.Start(":8080"))
 }
