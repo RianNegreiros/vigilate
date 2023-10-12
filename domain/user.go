@@ -32,7 +32,7 @@ type LoginUserRequest struct {
 }
 
 type LoginUserResponse struct {
-	accessToken string
+	AccessToken string `json:"access_token"`
 	ID          string `json:"id"`
 	Username    string `json:"username"`
 }

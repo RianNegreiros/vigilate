@@ -3,20 +3,22 @@ package user
 import (
 	"net/http"
 
+	"github.com/RianNegreiros/vigilate/domain"
 	"github.com/labstack/echo"
 )
 
 const cookieAge = 7 * 24 * 60 * 60 // 7 days
+const domainURL = "localhost"
 
 type ResponseError struct {
 	Message string `json:"message"`
 }
 
 type UserHandler struct {
-	UserService UserService
+	UserService domain.UserUsecase
 }
 
-func NewUserHandler(e *echo.Echo, userService UserService) {
+func NewUserHandler(e *echo.Echo, userService domain.UserUsecase) {
 	handler := &UserHandler{
 		UserService: userService,
 	}
@@ -27,7 +29,7 @@ func NewUserHandler(e *echo.Echo, userService UserService) {
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
-	var u CreateUserRequest
+	var u domain.CreateUserRequest
 	if err := c.Bind(&u); err != nil {
 		c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 		return nil
@@ -44,7 +46,7 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 }
 
 func (h *UserHandler) Login(c echo.Context) error {
-	var user LoginUserRequest
+	var user domain.LoginUserRequest
 	if err := c.Bind(&user); err != nil {
 		c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 		return nil
@@ -56,7 +58,7 @@ func (h *UserHandler) Login(c echo.Context) error {
 		return nil
 	}
 
-	writeCookie(c, "jwt", u.accessToken, cookieAge) // 7 days
+	writeCookie(c, "jwt", u.AccessToken, cookieAge)
 	return c.JSON(http.StatusOK, u)
 }
 
@@ -73,7 +75,7 @@ func writeCookie(c echo.Context, name, value string, maxAge int) {
 	cookie.Value = value
 	cookie.MaxAge = maxAge
 	cookie.Path = "/"
-	cookie.Domain = domain
+	cookie.Domain = domainURL
 	cookie.Secure = false
 	cookie.HttpOnly = true
 	c.SetCookie(cookie)

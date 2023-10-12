@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/RianNegreiros/vigilate/domain"
 	"github.com/labstack/echo"
 )
 
@@ -9,10 +10,10 @@ type ResponseError struct {
 }
 
 type ServiceHandler struct {
-	ServiceService ServiceService
+	ServiceService domain.ServiceUsecase
 }
 
-func NewServiceHandler(e *echo.Echo, serviceService ServiceService) {
+func NewServiceHandler(e *echo.Echo, serviceService domain.ServiceUsecase) {
 	handler := &ServiceHandler{
 		ServiceService: serviceService,
 	}
@@ -23,7 +24,7 @@ func NewServiceHandler(e *echo.Echo, serviceService ServiceService) {
 }
 
 func (h *ServiceHandler) CreateService(c echo.Context) error {
-	var s ServiceRequest
+	var s domain.ServiceRequest
 	if err := c.Bind(&s); err != nil {
 		c.JSON(400, echo.Map{"error": err.Error()})
 		return nil
