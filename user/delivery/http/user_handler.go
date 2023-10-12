@@ -15,12 +15,12 @@ type ResponseError struct {
 }
 
 type UserHandler struct {
-	UserService domain.UserUsecase
+	UserUsecase domain.UserUsecase
 }
 
-func NewUserHandler(e *echo.Echo, userService domain.UserUsecase) {
+func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
 	handler := &UserHandler{
-		UserService: userService,
+		UserUsecase: us,
 	}
 
 	e.POST("/signup", handler.CreateUser)
@@ -35,7 +35,7 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 		return nil
 	}
 
-	res, err := h.UserService.CreateUser(c.Request().Context(), &u)
+	res, err := h.UserUsecase.CreateUser(c.Request().Context(), &u)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
 		return nil
@@ -52,7 +52,7 @@ func (h *UserHandler) Login(c echo.Context) error {
 		return nil
 	}
 
-	u, err := h.UserService.Login(c.Request().Context(), &user)
+	u, err := h.UserUsecase.Login(c.Request().Context(), &user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 		return nil

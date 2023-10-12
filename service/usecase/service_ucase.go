@@ -8,19 +8,19 @@ import (
 	"github.com/RianNegreiros/vigilate/domain"
 )
 
-type service struct {
+type serviceUsecase struct {
 	serviceRepo    domain.ServiceRepository
 	contextTimeout time.Duration
 }
 
-func NewService(repository domain.ServiceRepository) domain.ServiceUsecase {
-	return &service{
-		serviceRepo:    repository,
-		contextTimeout: time.Duration(2) * time.Second,
+func NewServiceUsecase(s domain.ServiceRepository, timeout time.Duration) domain.ServiceUsecase {
+	return &serviceUsecase{
+		serviceRepo:    s,
+		contextTimeout: timeout,
 	}
 }
 
-func (s *service) CreateService(ctx context.Context, req *domain.ServiceRequest) (*domain.ServiceResponse, error) {
+func (s *serviceUsecase) CreateService(ctx context.Context, req *domain.ServiceRequest) (*domain.ServiceResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
@@ -45,7 +45,7 @@ func (s *service) CreateService(ctx context.Context, req *domain.ServiceRequest)
 	}, nil
 }
 
-func (s *service) GetServiceByID(ctx context.Context, id string) (*domain.ServiceResponse, error) {
+func (s *serviceUsecase) GetServiceByID(ctx context.Context, id string) (*domain.ServiceResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 

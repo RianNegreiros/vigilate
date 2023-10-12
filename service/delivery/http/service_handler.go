@@ -10,12 +10,12 @@ type ResponseError struct {
 }
 
 type ServiceHandler struct {
-	ServiceService domain.ServiceUsecase
+	ServiceUsecase domain.ServiceUsecase
 }
 
-func NewServiceHandler(e *echo.Echo, serviceService domain.ServiceUsecase) {
+func NewServiceHandler(e *echo.Echo, us domain.ServiceUsecase) {
 	handler := &ServiceHandler{
-		ServiceService: serviceService,
+		ServiceUsecase: us,
 	}
 
 	e.GET("/services/:id", handler.GetServiceByID)
@@ -30,7 +30,7 @@ func (h *ServiceHandler) CreateService(c echo.Context) error {
 		return nil
 	}
 
-	res, err := h.ServiceService.CreateService(c.Request().Context(), &s)
+	res, err := h.ServiceUsecase.CreateService(c.Request().Context(), &s)
 	if err != nil {
 		c.JSON(500, echo.Map{"error": err.Error()})
 		return nil
@@ -42,7 +42,7 @@ func (h *ServiceHandler) CreateService(c echo.Context) error {
 
 func (h *ServiceHandler) GetServiceByID(c echo.Context) error {
 	id := c.Param("id")
-	res, err := h.ServiceService.GetServiceByID(c.Request().Context(), id)
+	res, err := h.ServiceUsecase.GetServiceByID(c.Request().Context(), id)
 	if err != nil {
 		c.JSON(500, echo.Map{"error": err.Error()})
 		return nil

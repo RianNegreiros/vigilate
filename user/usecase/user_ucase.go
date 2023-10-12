@@ -15,19 +15,19 @@ const (
 	SecretKey = "secret"
 )
 
-type service struct {
+type userUsecase struct {
 	userRepo       domain.UserRepository
 	contextTimeout time.Duration
 }
 
-func NewService(repository domain.UserRepository) domain.UserUsecase {
-	return &service{
-		userRepo:       repository,
-		contextTimeout: time.Duration(2) * time.Second,
+func NewUserUsecase(u domain.UserRepository, timeout time.Duration) domain.UserUsecase {
+	return &userUsecase{
+		userRepo:       u,
+		contextTimeout: timeout,
 	}
 }
 
-func (s *service) CreateUser(ctx context.Context, req *domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
+func (s *userUsecase) CreateUser(ctx context.Context, req *domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
@@ -65,7 +65,7 @@ type MyJWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-func (s *service) Login(c context.Context, req *domain.LoginUserRequest) (*domain.LoginUserResponse, error) {
+func (s *userUsecase) Login(c context.Context, req *domain.LoginUserRequest) (*domain.LoginUserResponse, error) {
 	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
 
