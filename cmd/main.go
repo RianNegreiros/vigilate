@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/RianNegreiros/vigilate/db"
+	"github.com/RianNegreiros/vigilate/infra/database"
 	_userHandler "github.com/RianNegreiros/vigilate/user/delivery/http"
 	_userRepo "github.com/RianNegreiros/vigilate/user/repository/postgres"
 	_userUsecase "github.com/RianNegreiros/vigilate/user/usecase"
@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	dbConn, err := db.NewDatabase()
+	dbConn, err := database.NewDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
