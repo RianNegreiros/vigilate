@@ -7,7 +7,7 @@ import (
 
 	"github.com/RianNegreiros/vigilate/domain"
 	"github.com/RianNegreiros/vigilate/util"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
