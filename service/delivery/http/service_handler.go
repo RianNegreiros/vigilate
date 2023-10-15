@@ -5,6 +5,8 @@ import (
 
 	"github.com/RianNegreiros/vigilate/domain"
 	"github.com/labstack/echo"
+
+	_serviceMiddleware "github.com/RianNegreiros/vigilate/service/delivery/http/middleware"
 )
 
 type ResponseError struct {
@@ -22,7 +24,11 @@ func NewServiceHandler(e *echo.Echo, us domain.ServiceUsecase) {
 
 	e.GET("/services/:id", handler.GetServiceByID)
 
-	e.POST("/services", handler.CreateService)
+	m := _serviceMiddleware.InitMiddleware()
+
+	g := e.Group("")
+	g.Use(m.AuthMiddleware)
+	g.POST("/services", handler.CreateService)
 }
 
 func (h *ServiceHandler) CreateService(c echo.Context) error {
