@@ -9,10 +9,6 @@ import (
 	_userRepo "github.com/RianNegreiros/vigilate/user/repository/postgres"
 	_userUsecase "github.com/RianNegreiros/vigilate/user/usecase"
 
-	_serviceHandler "github.com/RianNegreiros/vigilate/service/delivery/http"
-	_serviceRepo "github.com/RianNegreiros/vigilate/service/repository/postgres"
-	_serviceUsecase "github.com/RianNegreiros/vigilate/service/usecase"
-
 	"github.com/labstack/echo"
 )
 
@@ -41,10 +37,6 @@ func main() {
 	ur := _userRepo.NewPostgresUserRepo(dbConn.GetDB())
 	uu := _userUsecase.NewUserUsecase(ur, contextTimeout)
 	_userHandler.NewUserHandler(e, uu)
-
-	sr := _serviceRepo.NewPostgresServiceRepo(dbConn.GetDB())
-	su := _serviceUsecase.NewServiceUsecase(sr, contextTimeout)
-	_serviceHandler.NewServiceHandler(e, su)
 
 	log.Fatal(e.Start(":8080"))
 }
