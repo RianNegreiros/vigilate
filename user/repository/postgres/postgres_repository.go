@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"log"
+	"time"
 
 	"github.com/RianNegreiros/vigilate/domain"
 )
@@ -39,4 +41,77 @@ func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*d
 	}
 
 	return &u, nil
+}
+
+func (r *postgresUserRepo) AllPreferences(ctx context.Context) ([]domain.Preference, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	query := "SELECT id, name, preference FROM preferences"
+
+	rows, err := r.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var preferences []domain.Preference
+
+	for rows.Next() {
+		s := &domain.Preference{}
+		err := rows.Scan(&s.ID, &s.Name, &s.Preference)
+		if err != nil {
+			return nil, err
+		}
+		preferences = append(preferences, *s)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return preferences, nil
+}
+
+func (r *postgresUserRepo) SetSystemPref(ctx context.Context, name, value string) error {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	stmt := `delete from preferences where name = $1`
+	_, _ = r.DB.ExecContext(ctx, stmt, name)
+
+	query := `INSERT INTO preferences(name, preference) VALUES ($1, $2)`
+
+	_, err := r.DB.ExecContext(ctx, query, name, value)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (m *postgresUserRepo) InsertOrUpdateSitePreferences(ctx context.Context, pm map[string]string) error {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	for k, v := range pm {
+		query := `delete from preferences where name = $1`
+
+		_, err := m.DB.ExecContext(ctx, query, k)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+		query = `insert into preferences (name, preference) values ($1, $2)`
+
+		_, err = m.DB.ExecContext(ctx, query, k, v)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

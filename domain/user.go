@@ -49,6 +49,9 @@ type LoginUserResponse struct {
 type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	AllPreferences(ctx context.Context) ([]Preference, error)
+	SetSystemPref(ctx context.Context, name, value string) error
+	InsertOrUpdateSitePreferences(ctx context.Context, pm map[string]string) error
 }
 
 type UserUsecase interface {
