@@ -5,6 +5,9 @@ import (
 	"time"
 
 	"github.com/RianNegreiros/vigilate/infra/database"
+	_remoteServerHandler "github.com/RianNegreiros/vigilate/remote-server/delivery/http"
+	_remoteServerRepo "github.com/RianNegreiros/vigilate/remote-server/repository/postgres"
+	_remoteServerUsecase "github.com/RianNegreiros/vigilate/remote-server/usecase"
 	_userHandler "github.com/RianNegreiros/vigilate/user/delivery/http"
 	_userRepo "github.com/RianNegreiros/vigilate/user/repository/postgres"
 	_userUsecase "github.com/RianNegreiros/vigilate/user/usecase"
@@ -37,6 +40,10 @@ func main() {
 	ur := _userRepo.NewPostgresUserRepo(dbConn.GetDB())
 	uu := _userUsecase.NewUserUsecase(ur, contextTimeout)
 	_userHandler.NewUserHandler(e, uu)
+
+	rsr := _remoteServerRepo.NewPostgresRemoteServerRepo(dbConn.GetDB())
+	rsu := _remoteServerUsecase.NewRemoteServerUsecase(rsr, contextTimeout)
+	_remoteServerHandler.NewRemoteServerHandler(e, rsu)
 
 	log.Fatal(e.Start(":8080"))
 }

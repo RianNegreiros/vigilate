@@ -18,6 +18,7 @@ func NewPostgresRemoteServerRepo(db *sql.DB) domain.RemoteServerRepository {
 }
 
 func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *domain.RemoteServer) (err error) {
+	var lastInsertId int
 	query := `INSERT INTO remote_servers (user_id, name, address, is_active) VALUES ($1, $2, $3, $4) RETURNING id`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	if err != nil {
@@ -25,16 +26,11 @@ func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *dom
 	}
 	defer stmt.Close()
 
-	res, err := stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive)
+	_, err = stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive)
 	if err != nil {
 		return
 	}
 
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return
-	}
-
-	remoteServer.ID = lastID
+	remoteServer.ID = int64(lastInsertId)
 	return
 }
