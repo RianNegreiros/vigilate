@@ -10,10 +10,18 @@ type RemoteServer struct {
 	IsActive bool   `json:"is_active" db:"is_active"`
 }
 
+type CreateRemoteServer struct {
+	UserID   int    `json:"user_id"`
+	Name     string `json:"name"`
+	Address  string `json:"address"`
+	Port     int    `json:"port"`
+	IsActive bool   `json:"is_active"`
+}
+
 type RemoteServerRepository interface {
 	Create(ctx context.Context, server *RemoteServer) error
 }
 
 type RemoteServerUsecase interface {
-	Create(ctx context.Context, server *RemoteServer) error
+	Create(ctx context.Context, server *CreateRemoteServer) error
 }

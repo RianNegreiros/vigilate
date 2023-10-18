@@ -19,14 +19,18 @@ func NewRemoteServerUsecase(u domain.RemoteServerRepository, timeout time.Durati
 	}
 }
 
-func (s *remoteServerUsecase) Create(ctx context.Context, remoteServer *domain.RemoteServer) (err error) {
+func (s *remoteServerUsecase) Create(ctx context.Context, req *domain.CreateRemoteServer) (err error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
-	err = s.remoteServerRepo.Create(ctx, remoteServer)
-	if err != nil {
-		return err
+	remoteServer := &domain.RemoteServer{
+		UserID:   req.UserID,
+		Name:     req.Name,
+		Address:  req.Address,
+		IsActive: req.IsActive,
 	}
+
+	err = s.remoteServerRepo.Create(ctx, remoteServer)
 
 	return
 }
