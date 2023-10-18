@@ -20,8 +20,10 @@ type CreateRemoteServer struct {
 type RemoteServerRepository interface {
 	Create(ctx context.Context, server *RemoteServer) error
 	Exists(ctx context.Context, address string) (bool, error)
+	GetByUserID(ctx context.Context, userID int) ([]RemoteServer, error)
 }
 
 type RemoteServerUsecase interface {
 	Create(ctx context.Context, server *CreateRemoteServer) error
+	GetByUserID(ctx context.Context, userID int) ([]RemoteServer, error)
 }

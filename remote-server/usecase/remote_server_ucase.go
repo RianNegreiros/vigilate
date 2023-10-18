@@ -43,3 +43,12 @@ func (s *remoteServerUsecase) Create(ctx context.Context, req *domain.CreateRemo
 
 	return
 }
+
+func (s *remoteServerUsecase) GetByUserID(ctx context.Context, userID int) (servers []domain.RemoteServer, err error) {
+	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
+	defer cancel()
+
+	servers, err = s.remoteServerRepo.GetByUserID(ctx, userID)
+
+	return servers, err
+}
