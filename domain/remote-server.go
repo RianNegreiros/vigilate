@@ -13,3 +13,7 @@ type RemoteServer struct {
 type RemoteServerRepository interface {
 	Create(ctx context.Context, server *RemoteServer) error
 }
+
+type RemoteServerUsecase interface {
+	Create(ctx context.Context, server *RemoteServer) error
+}
