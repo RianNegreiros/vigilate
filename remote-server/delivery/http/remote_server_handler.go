@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/RianNegreiros/vigilate/domain"
+	"github.com/RianNegreiros/vigilate/remote-server/delivery/http/middleware"
 	"github.com/labstack/echo"
 )
 
@@ -20,7 +21,7 @@ func NewRemoteServerHandler(e *echo.Echo, us domain.RemoteServerUsecase) {
 		RemoteServerUsecase: us,
 	}
 
-	e.POST("/remote-servers", handler.Create)
+	e.POST("/remote-servers", handler.Create, middleware.JWTMiddleware)
 }
 
 func (h *RemoteServerHandler) Create(c echo.Context) (err error) {
