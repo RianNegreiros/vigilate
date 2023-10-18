@@ -14,12 +14,12 @@ type CreateRemoteServer struct {
 	UserID   int    `json:"user_id"`
 	Name     string `json:"name"`
 	Address  string `json:"address"`
-	Port     int    `json:"port"`
 	IsActive bool   `json:"is_active"`
 }
 
 type RemoteServerRepository interface {
 	Create(ctx context.Context, server *RemoteServer) error
+	Exists(ctx context.Context, address string) (bool, error)
 }
 
 type RemoteServerUsecase interface {

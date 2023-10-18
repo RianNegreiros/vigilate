@@ -33,7 +33,6 @@ func (h *RemoteServerHandler) Create(c echo.Context) (err error) {
 
 	err = h.RemoteServerUsecase.Create(c.Request().Context(), &remoteServer)
 	if err != nil {
-
 		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
 	}
 

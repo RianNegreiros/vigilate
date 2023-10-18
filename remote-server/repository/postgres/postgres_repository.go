@@ -34,3 +34,14 @@ func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *dom
 	remoteServer.ID = int64(lastInsertId)
 	return
 }
+
+func (r *postgresRemoteServerRepo) Exists(ctx context.Context, address string) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM remote_servers WHERE address=$1)`
+	var exists bool
+	err := r.DB.QueryRowContext(ctx, query, address).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}

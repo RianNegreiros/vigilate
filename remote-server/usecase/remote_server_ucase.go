@@ -23,6 +23,15 @@ func (s *remoteServerUsecase) Create(ctx context.Context, req *domain.CreateRemo
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
+	exists, err := s.remoteServerRepo.Exists(ctx, req.Address)
+	if err != nil {
+		return
+	}
+
+	if exists {
+		return domain.ErrDuplicateAddress
+	}
+
 	remoteServer := &domain.RemoteServer{
 		UserID:   req.UserID,
 		Name:     req.Name,
