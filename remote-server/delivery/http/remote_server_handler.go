@@ -24,7 +24,7 @@ func NewRemoteServerHandler(e *echo.Echo, us domain.RemoteServerUsecase) {
 }
 
 func (h *RemoteServerHandler) Create(c echo.Context) (err error) {
-	var remoteServer domain.RemoteServer
+	var remoteServer domain.CreateRemoteServer
 	err = c.Bind(&remoteServer)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: err.Error()})
