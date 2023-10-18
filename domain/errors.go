@@ -9,4 +9,6 @@ var (
 	ErrInvalidCredentials = errors.New("models: invalid credentials")
 	// ErrDuplicateEmail duplicate email error
 	ErrDuplicateEmail = errors.New("models: duplicate email")
+	// ErrDuplicateAddress duplicate address error
+	ErrDuplicateAddress = errors.New("models: duplicate address")
 )

@@ -19,6 +19,7 @@ type CreateRemoteServer struct {
 
 type RemoteServerRepository interface {
 	Create(ctx context.Context, server *RemoteServer) error
+	Exists(ctx context.Context, address string) (bool, error)
 }
 
 type RemoteServerUsecase interface {
