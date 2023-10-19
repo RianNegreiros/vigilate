@@ -11,10 +11,9 @@ type RemoteServer struct {
 }
 
 type CreateRemoteServer struct {
-	UserID   int    `json:"user_id"`
-	Name     string `json:"name"`
-	Address  string `json:"address"`
-	IsActive bool   `json:"is_active"`
+	UserID  int    `json:"user_id"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
 }
 
 type RemoteServerRepository interface {

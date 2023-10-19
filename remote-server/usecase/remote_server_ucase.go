@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/RianNegreiros/vigilate/domain"
@@ -36,7 +37,7 @@ func (s *remoteServerUsecase) Create(ctx context.Context, req *domain.CreateRemo
 		UserID:   req.UserID,
 		Name:     req.Name,
 		Address:  req.Address,
-		IsActive: req.IsActive,
+		IsActive: isServerUp(req.Address),
 	}
 
 	err = s.remoteServerRepo.Create(ctx, remoteServer)
@@ -51,4 +52,13 @@ func (s *remoteServerUsecase) GetByUserID(ctx context.Context, userID int) (serv
 	servers, err = s.remoteServerRepo.GetByUserID(ctx, userID)
 
 	return servers, err
+}
+
+func isServerUp(address string) bool {
+	resp, err := http.Get(address)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode == http.StatusOK
 }
