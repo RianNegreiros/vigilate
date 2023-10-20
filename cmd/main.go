@@ -43,6 +43,7 @@ func main() {
 
 	rsr := _remoteServerRepo.NewPostgresRemoteServerRepo(dbConn.GetDB())
 	rsu := _remoteServerUsecase.NewRemoteServerUsecase(rsr, contextTimeout)
+	rsu.StartServerHealthCheck()
 	_remoteServerHandler.NewRemoteServerHandler(e, rsu)
 
 	log.Fatal(e.Start(":8080"))
