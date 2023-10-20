@@ -71,3 +71,45 @@ func (r *postgresRemoteServerRepo) GetByUserID(ctx context.Context, userID int) 
 
 	return servers, nil
 }
+
+func (r *postgresRemoteServerRepo) GetAll(ctx context.Context) ([]domain.RemoteServer, error) {
+	query := "SELECT id, user_id, name, address, is_active FROM remote_servers"
+	var servers []domain.RemoteServer
+
+	rows, err := r.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var server domain.RemoteServer
+		err := rows.Scan(&server.ID, &server.UserID, &server.Name, &server.Address, &server.IsActive)
+		if err != nil {
+			return nil, err
+		}
+		servers = append(servers, server)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return servers, nil
+}
+
+func (r *postgresRemoteServerRepo) Update(ctx context.Context, remoteServer *domain.RemoteServer) (err error) {
+	query := `UPDATE remote_servers SET name=$1, address=$2, is_active=$3 WHERE id=$4`
+	stmt, err := r.DB.PrepareContext(ctx, query)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.ID)
+	if err != nil {
+		return
+	}
+
+	return
+}
