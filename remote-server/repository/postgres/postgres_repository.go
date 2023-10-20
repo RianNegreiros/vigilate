@@ -19,14 +19,14 @@ func NewPostgresRemoteServerRepo(db *sql.DB) domain.RemoteServerRepository {
 
 func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *domain.RemoteServer) (err error) {
 	var lastInsertId int
-	query := `INSERT INTO remote_servers (user_id, name, address, is_active) VALUES ($1, $2, $3, $4) RETURNING id`
+	query := `INSERT INTO remote_servers (user_id, name, address, is_active, last_check_time, next_check_time ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	if err != nil {
 		return
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive)
+	_, err = stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime)
 	if err != nil {
 		return
 	}
@@ -47,7 +47,7 @@ func (r *postgresRemoteServerRepo) Exists(ctx context.Context, address string) (
 }
 
 func (r *postgresRemoteServerRepo) GetByUserID(ctx context.Context, userID int) ([]domain.RemoteServer, error) {
-	query := "SELECT id, name, address, is_active FROM remote_servers WHERE user_id=$1"
+	query := "SELECT id, name, address, is_active, last_check_time, next_check_time FROM remote_servers WHERE user_id=$1"
 	var servers []domain.RemoteServer
 
 	rows, err := r.DB.QueryContext(ctx, query, userID)
@@ -58,7 +58,7 @@ func (r *postgresRemoteServerRepo) GetByUserID(ctx context.Context, userID int) 
 
 	for rows.Next() {
 		var server domain.RemoteServer
-		err := rows.Scan(&server.ID, &server.Name, &server.Address, &server.IsActive)
+		err := rows.Scan(&server.ID, &server.Name, &server.Address, &server.IsActive, &server.LastCheckTime, &server.NextCheckTime)
 		if err != nil {
 			return nil, err
 		}
@@ -73,7 +73,7 @@ func (r *postgresRemoteServerRepo) GetByUserID(ctx context.Context, userID int) 
 }
 
 func (r *postgresRemoteServerRepo) GetAll(ctx context.Context) ([]domain.RemoteServer, error) {
-	query := "SELECT id, user_id, name, address, is_active FROM remote_servers"
+	query := "SELECT id, user_id, name, address, is_active, last_check_time, next_check_time FROM remote_servers"
 	var servers []domain.RemoteServer
 
 	rows, err := r.DB.QueryContext(ctx, query)
@@ -84,7 +84,7 @@ func (r *postgresRemoteServerRepo) GetAll(ctx context.Context) ([]domain.RemoteS
 
 	for rows.Next() {
 		var server domain.RemoteServer
-		err := rows.Scan(&server.ID, &server.UserID, &server.Name, &server.Address, &server.IsActive)
+		err := rows.Scan(&server.ID, &server.UserID, &server.Name, &server.Address, &server.IsActive, &server.LastCheckTime, &server.NextCheckTime)
 		if err != nil {
 			return nil, err
 		}
