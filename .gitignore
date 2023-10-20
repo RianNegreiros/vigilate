@@ -1,2 +1,5 @@
 # docker volumes
 testdata
+
+# environment variables
+.env
