@@ -35,10 +35,12 @@ func (s *remoteServerUsecase) Create(ctx context.Context, req *domain.CreateRemo
 	}
 
 	remoteServer := &domain.RemoteServer{
-		UserID:   req.UserID,
-		Name:     req.Name,
-		Address:  req.Address,
-		IsActive: isServerUp(req.Address),
+		UserID:        req.UserID,
+		Name:          req.Name,
+		Address:       req.Address,
+		IsActive:      isServerUp(req.Address),
+		LastCheckTime: time.Now(),
+		NextCheckTime: time.Now().Add(time.Minute * 5),
 	}
 
 	err = s.remoteServerRepo.Create(ctx, remoteServer)
@@ -84,6 +86,8 @@ func (s *remoteServerUsecase) performServerHealthChecks() {
 	for _, server := range servers {
 		go func(server domain.RemoteServer) {
 			server.IsActive = isServerUp(server.Address)
+			server.LastCheckTime = time.Now()
+			server.NextCheckTime = time.Now().Add(time.Minute * 5)
 			err = s.remoteServerRepo.Update(ctx, &server)
 			if err != nil {
 				return

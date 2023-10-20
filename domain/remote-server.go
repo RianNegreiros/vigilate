@@ -1,13 +1,18 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type RemoteServer struct {
-	ID       int64  `json:"id" db:"id"`
-	UserID   int    `json:"user_id" db:"user_id"`
-	Name     string `json:"name" db:"name"`
-	Address  string `json:"address" db:"address"`
-	IsActive bool   `json:"is_active" db:"is_active"`
+	ID            int64     `json:"id" db:"id"`
+	UserID        int       `json:"user_id" db:"user_id"`
+	Name          string    `json:"name" db:"name"`
+	Address       string    `json:"address" db:"address"`
+	IsActive      bool      `json:"is_active" db:"is_active"`
+	LastCheckTime time.Time `json:"last_check_time" db:"last_check_time"`
+	NextCheckTime time.Time `json:"next_check_time" db:"next_check_time"`
 }
 
 type CreateRemoteServer struct {
