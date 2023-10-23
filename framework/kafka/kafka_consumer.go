@@ -1,43 +1,59 @@
 package kafka
 
 import (
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"context"
+	"log"
+
 	"github.com/pusher/pusher-http-go"
+	"github.com/segmentio/kafka-go"
 )
 
 type KafkaConsumer struct {
-	consumer     *kafka.Consumer
+	reader       *kafka.Reader
 	pusherClient *pusher.Client
 }
 
-func NewKafkaConsumer(consumer *kafka.Consumer, pusherClient *pusher.Client) *KafkaConsumer {
+func NewKafkaConsumer(brokers []string, topic string, groupID string, dialer *kafka.Dialer, pusherClient *pusher.Client) *KafkaConsumer {
+	reader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: brokers,
+		Topic:   topic,
+		GroupID: groupID,
+		Dialer:  dialer,
+	})
+
 	return &KafkaConsumer{
-		consumer:     consumer,
+		reader:       reader,
 		pusherClient: pusherClient,
 	}
 }
 
-func (kc *KafkaConsumer) ConsumeMessages(topic string, messageHandler func([]byte) error) error {
-	kc.consumer.SubscribeTopics([]string{topic}, nil)
+func (kc *KafkaConsumer) ConsumeMessages(ctx context.Context, messageHandler func([]byte) error) error {
+	defer kc.reader.Close()
 
 	for {
-		msg, err := kc.consumer.ReadMessage(-1)
-		if err == nil {
-			messageContent := string(msg.Value)
+		msg, err := kc.reader.ReadMessage(ctx)
+		if err != nil {
+			log.Println("Error reading message from kafka", err)
+			return err
+		}
 
-			channelName := "kafka-messages"
-			eventName := "kafka-message-received"
-			data := map[string]string{"message": messageContent}
-			err := kc.pusherClient.Trigger(channelName, eventName, data)
-			if err != nil {
-				return err
-			}
-		} else {
+		messageContent := string(msg.Value)
+		channelName := "kafka-messages"
+		eventName := "kafka-message-received"
+		data := map[string]string{"message": messageContent}
+
+		if err := kc.pusherClient.Trigger(channelName, eventName, data); err != nil {
+			log.Println("Error triggering pusher event", err)
+			return err
+		}
+
+		if err := messageHandler(msg.Value); err != nil {
+			log.Println("Error handling message", err)
 			return err
 		}
 	}
 }
 
 func (kc *KafkaConsumer) Close() error {
-	return kc.consumer.Close()
+	return kc.reader.Close()
 }
