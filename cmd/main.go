@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/RianNegreiros/vigilate/config"
+	"github.com/RianNegreiros/vigilate/framework/kafka"
 	"github.com/RianNegreiros/vigilate/infra/database"
 	_remoteServerHandler "github.com/RianNegreiros/vigilate/remote-server/delivery/http"
 	_remoteServerRepo "github.com/RianNegreiros/vigilate/remote-server/repository/postgres"
@@ -12,6 +13,7 @@ import (
 	_userHandler "github.com/RianNegreiros/vigilate/user/delivery/http"
 	_userRepo "github.com/RianNegreiros/vigilate/user/repository/postgres"
 	_userUsecase "github.com/RianNegreiros/vigilate/user/usecase"
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/joho/godotenv"
 
 	"github.com/labstack/echo"
@@ -40,6 +42,15 @@ func main() {
 		}
 	}()
 
+	kafkaConfig := config.NewKafkaConfig()
+	producer, err := ckafka.NewProducer(kafkaConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer producer.Close()
+
+	kafkaProducer := kafka.NewKafkaProducer(producer)
+
 	config.NewPusherClient()
 
 	e := echo.New()
@@ -52,8 +63,10 @@ func main() {
 
 	rsr := _remoteServerRepo.NewPostgresRemoteServerRepo(dbConn.GetDB())
 	rsu := _remoteServerUsecase.NewRemoteServerUsecase(rsr, contextTimeout)
-	rsu.StartServerHealthCheck()
 	_remoteServerHandler.NewRemoteServerHandler(e, rsu)
+
+	hcu := _remoteServerUsecase.NewHealthCheckUsecase(rsr, contextTimeout, kafkaProducer)
+	hcu.StartHealthChecksScheduler()
 
 	log.Fatal(e.Start(":8080"))
 }

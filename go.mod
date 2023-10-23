@@ -3,6 +3,7 @@ module github.com/RianNegreiros/vigilate
 go 1.21.1
 
 require (
+	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/go-co-op/gocron v1.35.2
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/joho/godotenv v1.5.1

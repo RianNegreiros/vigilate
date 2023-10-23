@@ -11,12 +11,14 @@ import (
 type healthCheckUsecase struct {
 	remoteServerRepo domain.RemoteServerRepository
 	contextTimeout   time.Duration
+	kafkaProducer    domain.KafkaProducer
 }
 
-func NewHealthCheckUsecase(r domain.RemoteServerRepository, timeout time.Duration) domain.HealthCheckUsecase {
+func NewHealthCheckUsecase(r domain.RemoteServerRepository, timeout time.Duration, kafkaProducer domain.KafkaProducer) domain.HealthCheckUsecase {
 	return &healthCheckUsecase{
 		remoteServerRepo: r,
 		contextTimeout:   timeout,
+		kafkaProducer:    kafkaProducer,
 	}
 }
 
@@ -46,6 +48,16 @@ func (hc *healthCheckUsecase) performServerHealthChecks() {
 			if err != nil {
 				return
 			}
+
+			var result string
+			if server.IsActive {
+				result = "up"
+			} else {
+				result = "down"
+			}
+
+			topic := "health-check-results"
+			hc.kafkaProducer.SendHealthCheckResultToKafka(result, topic)
 		}(server)
 	}
 }
