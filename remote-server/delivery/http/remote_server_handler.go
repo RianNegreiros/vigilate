@@ -2,6 +2,7 @@ package http
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -67,6 +68,7 @@ func getUserIDFromJWTToken(cookieValue string) (int, error) {
 		return []byte("secret"), nil
 	})
 	if err != nil {
+		log.Println("Error parsing JWT token", err)
 		return 0, err
 	}
 
@@ -74,6 +76,7 @@ func getUserIDFromJWTToken(cookieValue string) (int, error) {
 		if idClaim, ok := claims["id"].(string); ok {
 			userID, err := strconv.Atoi(idClaim)
 			if err != nil {
+				log.Println("Error converting ID claim to int", err)
 				return 0, err
 			}
 			return userID, nil

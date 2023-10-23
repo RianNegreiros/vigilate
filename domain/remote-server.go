@@ -32,5 +32,4 @@ type RemoteServerRepository interface {
 type RemoteServerUsecase interface {
 	Create(ctx context.Context, server *CreateRemoteServer) error
 	GetByUserID(ctx context.Context, userID int) ([]RemoteServer, error)
-	StartServerHealthCheck()
 }
