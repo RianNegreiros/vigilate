@@ -51,6 +51,12 @@ func main() {
 
 	kafkaProducer := kafka.NewKafkaProducer(producer)
 
+	consumer, err := ckafka.NewConsumer(kafkaConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer consumer.Close()
+
 	config.NewPusherClient()
 
 	e := echo.New()
