@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/RianNegreiros/vigilate/domain"
-	"github.com/go-co-op/gocron"
 )
 
 type remoteServerUsecase struct {
@@ -64,34 +63,4 @@ func isServerUp(address string) bool {
 	}
 	defer resp.Body.Close()
 	return resp.StatusCode == http.StatusOK
-}
-
-func (s *remoteServerUsecase) StartServerHealthCheck() {
-	scheduler := gocron.NewScheduler(time.UTC)
-
-	scheduler.Every(5).Minute().Do(s.performServerHealthChecks)
-
-	scheduler.StartAsync()
-}
-
-func (s *remoteServerUsecase) performServerHealthChecks() {
-	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
-	defer cancel()
-
-	servers, err := s.remoteServerRepo.GetAll(ctx)
-	if err != nil {
-		return
-	}
-
-	for _, server := range servers {
-		go func(server domain.RemoteServer) {
-			server.IsActive = isServerUp(server.Address)
-			server.LastCheckTime = time.Now()
-			server.NextCheckTime = time.Now().Add(time.Minute * 5)
-			err = s.remoteServerRepo.Update(ctx, &server)
-			if err != nil {
-				return
-			}
-		}(server)
-	}
 }
