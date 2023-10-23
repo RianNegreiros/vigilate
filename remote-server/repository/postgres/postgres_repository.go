@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/RianNegreiros/vigilate/domain"
 )
@@ -22,12 +23,14 @@ func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *dom
 	query := `INSERT INTO remote_servers (user_id, name, address, is_active, last_check_time, next_check_time ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	if err != nil {
+		log.Println("Error preparing statement: ", err)
 		return
 	}
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime)
 	if err != nil {
+		log.Println("Error executing statement: ", err)
 		return
 	}
 
@@ -40,6 +43,7 @@ func (r *postgresRemoteServerRepo) Exists(ctx context.Context, address string) (
 	var exists bool
 	err := r.DB.QueryRowContext(ctx, query, address).Scan(&exists)
 	if err != nil {
+		log.Println("Error executing statement: ", err)
 		return false, err
 	}
 
@@ -52,6 +56,7 @@ func (r *postgresRemoteServerRepo) GetByUserID(ctx context.Context, userID int) 
 
 	rows, err := r.DB.QueryContext(ctx, query, userID)
 	if err != nil {
+		log.Println("Error executing statement: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -60,12 +65,14 @@ func (r *postgresRemoteServerRepo) GetByUserID(ctx context.Context, userID int) 
 		var server domain.RemoteServer
 		err := rows.Scan(&server.ID, &server.Name, &server.Address, &server.IsActive, &server.LastCheckTime, &server.NextCheckTime)
 		if err != nil {
+			log.Println("Error scanning rows: ", err)
 			return nil, err
 		}
 		servers = append(servers, server)
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Println("Error iterating rows: ", err)
 		return nil, err
 	}
 
@@ -78,6 +85,7 @@ func (r *postgresRemoteServerRepo) GetAll(ctx context.Context) ([]domain.RemoteS
 
 	rows, err := r.DB.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("Error executing statement: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -86,12 +94,14 @@ func (r *postgresRemoteServerRepo) GetAll(ctx context.Context) ([]domain.RemoteS
 		var server domain.RemoteServer
 		err := rows.Scan(&server.ID, &server.UserID, &server.Name, &server.Address, &server.IsActive, &server.LastCheckTime, &server.NextCheckTime)
 		if err != nil {
+			log.Println("Error scanning rows: ", err)
 			return nil, err
 		}
 		servers = append(servers, server)
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Println("Error iterating rows: ", err)
 		return nil, err
 	}
 
@@ -102,12 +112,14 @@ func (r *postgresRemoteServerRepo) Update(ctx context.Context, remoteServer *dom
 	query := `UPDATE remote_servers SET name=$1, address=$2, is_active=$3 WHERE id=$4`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	if err != nil {
+		log.Println("Error preparing statement: ", err)
 		return
 	}
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.ID)
 	if err != nil {
+		log.Println("Error executing statement: ", err)
 		return
 	}
 

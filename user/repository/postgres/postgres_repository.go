@@ -25,6 +25,7 @@ func (r *postgresUserRepo) CreateUser(ctx context.Context, user *domain.User) (*
 
 	err := r.DB.QueryRowContext(ctx, query, user.Username, user.Password, user.Email).Scan(&lastInsertId)
 	if err != nil {
+		log.Println("Error executing statement: ", err)
 		return &domain.User{}, err
 	}
 
@@ -37,6 +38,7 @@ func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*d
 	query := "SELECT id, email, username, password FROM users WHERE email = $1"
 	err := r.DB.QueryRowContext(ctx, query, email).Scan(&u.ID, &u.Email, &u.Username, &u.Password)
 	if err != nil {
+		log.Println("Error executing statement: ", err)
 		return &domain.User{}, err
 	}
 
@@ -51,6 +53,7 @@ func (r *postgresUserRepo) AllPreferences(ctx context.Context) ([]domain.Prefere
 
 	rows, err := r.DB.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("Error executing statement: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -61,13 +64,14 @@ func (r *postgresUserRepo) AllPreferences(ctx context.Context) ([]domain.Prefere
 		s := &domain.Preference{}
 		err := rows.Scan(&s.ID, &s.Name, &s.Preference)
 		if err != nil {
+			log.Println("Error scanning row: ", err)
 			return nil, err
 		}
 		preferences = append(preferences, *s)
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Println(err)
+		log.Println("Error scanning row: ", err)
 		return nil, err
 	}
 
@@ -85,7 +89,7 @@ func (r *postgresUserRepo) SetSystemPref(ctx context.Context, name, value string
 
 	_, err := r.DB.ExecContext(ctx, query, name, value)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error executing statement: ", err)
 		return err
 	}
 
@@ -101,7 +105,7 @@ func (m *postgresUserRepo) InsertOrUpdateSitePreferences(ctx context.Context, pm
 
 		_, err := m.DB.ExecContext(ctx, query, k)
 		if err != nil {
-			log.Println(err)
+			log.Println("Error executing statement: ", err)
 			return err
 		}
 
@@ -109,6 +113,7 @@ func (m *postgresUserRepo) InsertOrUpdateSitePreferences(ctx context.Context, pm
 
 		_, err = m.DB.ExecContext(ctx, query, k, v)
 		if err != nil {
+			log.Println("Error executing statement: ", err)
 			return err
 		}
 	}

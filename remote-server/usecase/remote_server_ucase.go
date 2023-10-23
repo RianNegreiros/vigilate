@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -26,6 +27,7 @@ func (s *remoteServerUsecase) Create(ctx context.Context, req *domain.CreateRemo
 
 	exists, err := s.remoteServerRepo.Exists(ctx, req.Address)
 	if err != nil {
+		log.Println("Error checking if server exists: ", err)
 		return
 	}
 

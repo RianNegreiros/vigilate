@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"log"
 	"strconv"
 	"time"
 
@@ -38,6 +39,7 @@ func (s *userUsecase) CreateUser(ctx context.Context, req *domain.CreateUserRequ
 
 	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
+		log.Println("Error hashing password: ", err)
 		return nil, err
 	}
 
@@ -49,6 +51,7 @@ func (s *userUsecase) CreateUser(ctx context.Context, req *domain.CreateUserRequ
 
 	user, err = s.userRepo.CreateUser(ctx, user)
 	if err != nil {
+		log.Println("Error creating user: ", err)
 		return nil, err
 	}
 
