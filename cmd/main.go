@@ -42,6 +42,8 @@ func main() {
 		}
 	}()
 
+	pusherClient := config.NewPusherClient()
+
 	kafkaConfig := config.NewKafkaConfig()
 	producer, err := ckafka.NewProducer(kafkaConfig)
 	if err != nil {
@@ -57,7 +59,12 @@ func main() {
 	}
 	defer consumer.Close()
 
-	config.NewPusherClient()
+	kafkaConsumer := kafka.NewKafkaConsumer(consumer, pusherClient)
+
+	go kafkaConsumer.ConsumeMessages("health-check-results", func(message []byte) error {
+		log.Println(string(message))
+		return nil
+	})
 
 	e := echo.New()
 
