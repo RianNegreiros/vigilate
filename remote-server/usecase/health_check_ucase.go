@@ -49,6 +49,11 @@ func (hc *healthCheckUsecase) performServerHealthChecks() {
 		if !server.IsActive && server.NextCheckTime.After(time.Now()) {
 			continue
 		}
+
+		if time.Since(server.LastCheckTime) < time.Second*5 {
+			continue
+		}
+
 		go hc.checkServerStatus(ctx, server)
 	}
 }
@@ -100,6 +105,13 @@ func (hc *healthCheckUsecase) sendNotifications(server domain.RemoteServer) {
 
 		if err != nil {
 			log.Printf("Error sending email: %v", err)
+			return
+		}
+
+		server.LastNotificationTime = time.Now()
+		err = hc.remoteServerRepo.Update(ctx, &server)
+		if err != nil {
+			log.Printf("Error updating server: %v", err)
 			return
 		}
 	}
