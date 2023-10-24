@@ -15,14 +15,6 @@ type User struct {
 	UpdatedAt   time.Time         `json:"updated_at" db:"updated_at"`
 }
 
-type Preference struct {
-	ID         int64     `json:"id" db:"id"`
-	Name       string    `json:"name" db:"name"`
-	Preference string    `json:"preference" db:"preference"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
-}
-
 type CreateUserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
@@ -50,9 +42,6 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByID(ctx context.Context, id int) (*User, error)
-	AllPreferences(ctx context.Context) ([]Preference, error)
-	SetSystemPref(ctx context.Context, name, value string) error
-	InsertOrUpdateSitePreferences(ctx context.Context, pm map[string]string) error
 }
 
 type UserUsecase interface {
