@@ -55,3 +55,13 @@ func (r *postgresUserRepo) GetUserByID(ctx context.Context, id int) (*domain.Use
 
 	return &u, nil
 }
+
+func (r *postgresUserRepo) UpdateNotificationPreferences(ctx context.Context, userID int, preferences domain.NotificationPreferences) error {
+	query := "UPDATE users SET notification_preferences = $2 WHERE id = $1"
+	_, err := r.DB.ExecContext(ctx, query, userID, preferences)
+	if err != nil {
+		log.Println("Error updating notification preferences: ", err)
+		return err
+	}
+	return nil
+}
