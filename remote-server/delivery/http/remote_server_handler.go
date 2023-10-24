@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/RianNegreiros/vigilate/domain"
@@ -11,6 +12,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo"
 )
+
+var jwtSecret = os.Getenv("JWT_SECRET")
 
 type ResponseError struct {
 	Message string `json:"message"`
@@ -65,7 +68,7 @@ func (h *RemoteServerHandler) GetByUserID(c echo.Context) error {
 
 func getUserIDFromJWTToken(cookieValue string) (int, error) {
 	token, err := jwt.Parse(cookieValue, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil
+		return []byte(jwtSecret), nil
 	})
 	if err != nil {
 		log.Println("Error parsing JWT token", err)

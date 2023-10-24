@@ -2,10 +2,13 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo"
 )
+
+var jwtSecret = os.Getenv("JWT_SECRET")
 
 func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -19,7 +22,7 @@ func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
-			return []byte("secret"), nil
+			return []byte(jwtSecret), nil
 		})
 
 		if err != nil {

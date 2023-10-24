@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -12,9 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const (
-	SecretKey = "secret"
-)
+var jwtSecret = os.Getenv("JWT_SECRET")
 
 type userUsecase struct {
 	userRepo       domain.UserRepository
@@ -93,7 +92,7 @@ func (s *userUsecase) Login(c context.Context, req *domain.LoginUserRequest) (*d
 		},
 	})
 
-	ss, err := token.SignedString([]byte(SecretKey))
+	ss, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
 		return &domain.LoginUserResponse{}, err
 	}
