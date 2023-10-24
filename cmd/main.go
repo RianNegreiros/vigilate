@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/RianNegreiros/vigilate/config"
-	"github.com/RianNegreiros/vigilate/framework/kafka"
 	"github.com/RianNegreiros/vigilate/infra/database"
+	"github.com/RianNegreiros/vigilate/kafka"
 	_remoteServerHandler "github.com/RianNegreiros/vigilate/remote-server/delivery/http"
 	_remoteServerRepo "github.com/RianNegreiros/vigilate/remote-server/repository/postgres"
 	_remoteServerUsecase "github.com/RianNegreiros/vigilate/remote-server/usecase"

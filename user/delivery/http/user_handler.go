@@ -2,13 +2,13 @@ package user
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/RianNegreiros/vigilate/domain"
 	"github.com/labstack/echo"
 )
 
-const cookieAge = 7 * 24 * 60 * 60 // 7 days
-const domainURL = "localhost"
+var domainURL = os.Getenv("DOMAIN_URL")
 
 type ResponseError struct {
 	Message string `json:"message"`
@@ -58,6 +58,7 @@ func (h *UserHandler) Login(c echo.Context) error {
 		return nil
 	}
 
+	cookieAge := 60 * 60 * 24 * 7 // 7 days
 	writeCookie(c, "jwt", u.AccessToken, cookieAge)
 	return c.JSON(http.StatusOK, u)
 }
