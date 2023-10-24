@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -10,10 +11,13 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
+var topic = os.Getenv("KAFKA_TOPIC")
+
 type healthCheckUsecase struct {
 	remoteServerRepo domain.RemoteServerRepository
 	contextTimeout   time.Duration
 	kafkaProducer    domain.KafkaProducer
+	serverStatus     map[string]bool
 }
 
 func NewHealthCheckUsecase(r domain.RemoteServerRepository, timeout time.Duration, kafkaProducer domain.KafkaProducer) domain.HealthCheckUsecase {
@@ -21,6 +25,7 @@ func NewHealthCheckUsecase(r domain.RemoteServerRepository, timeout time.Duratio
 		remoteServerRepo: r,
 		contextTimeout:   timeout,
 		kafkaProducer:    kafkaProducer,
+		serverStatus:     make(map[string]bool),
 	}
 }
 
@@ -45,6 +50,7 @@ func (hc *healthCheckUsecase) performServerHealthChecks() {
 }
 
 func (hc *healthCheckUsecase) checkServerStatus(ctx context.Context, server domain.RemoteServer) {
+	prevState, exists := hc.serverStatus[server.Address]
 	server.IsActive = isServerUp(server.Address)
 	server.LastCheckTime = time.Now()
 	server.NextCheckTime = time.Now().Add(time.Second * 5)
@@ -54,13 +60,11 @@ func (hc *healthCheckUsecase) checkServerStatus(ctx context.Context, server doma
 		return
 	}
 
-	var result string
-	if server.IsActive {
-		result = "up"
-	} else {
-		result = "down"
-	}
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	message := fmt.Sprintf("Alert: Server Down\nServer: %s\nAddress: %s\nTimestamp: %s", server.Name, server.Address, timestamp)
 
-	topic := os.Getenv("KAFKA_TOPIC")
-	hc.kafkaProducer.SendHealthCheckResultToKafka(result, topic)
+	if !exists || prevState != server.IsActive {
+		hc.serverStatus[server.Address] = server.IsActive
+		hc.kafkaProducer.SendHealthCheckResultToKafka(topic, message)
+	}
 }
