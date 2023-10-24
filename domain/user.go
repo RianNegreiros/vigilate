@@ -6,13 +6,17 @@ import (
 )
 
 type User struct {
-	ID          int64             `json:"id" db:"id"`
-	Username    string            `json:"username" db:"username"`
-	Email       string            `json:"email" db:"email"`
-	Password    []byte            `json:"password" db:"password"`
-	Preferences map[string]string `json:"preferences" db:"preferences"`
-	CreatedAt   time.Time         `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at" db:"updated_at"`
+	ID                      int64                   `json:"id" db:"id"`
+	Username                string                  `json:"username" db:"username"`
+	Email                   string                  `json:"email" db:"email"`
+	Password                []byte                  `json:"password" db:"password"`
+	CreatedAt               time.Time               `json:"created_at" db:"created_at"`
+	UpdatedAt               time.Time               `json:"updated_at" db:"updated_at"`
+	NotificationPreferences NotificationPreferences `json:"notification_preferences" db:"notification_preferences"`
+}
+
+type NotificationPreferences struct {
+	EmailEnabled bool `json:"email_enabled" db:"email_enabled"`
 }
 
 type CreateUserRequest struct {
@@ -42,9 +46,11 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByID(ctx context.Context, id int) (*User, error)
+	UpdateNotificationPreferences(ctx context.Context, userID int, preferences NotificationPreferences) error
 }
 
 type UserUsecase interface {
 	CreateUser(ctx context.Context, req *CreateUserRequest) (*CreateUserResponse, error)
 	Login(ctx context.Context, req *LoginUserRequest) (*LoginUserResponse, error)
+	UpdateNotificationPreferences(ctx context.Context, userID int, preferences NotificationPreferences) error
 }
