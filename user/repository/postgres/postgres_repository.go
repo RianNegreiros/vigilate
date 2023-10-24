@@ -36,6 +36,10 @@ func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*d
 	u := domain.User{}
 	query := "SELECT id, email, username, password FROM users WHERE email = $1"
 	err := r.DB.QueryRowContext(ctx, query, email).Scan(&u.ID, &u.Email, &u.Username, &u.Password)
+	if err == sql.ErrNoRows {
+		return &domain.User{}, nil
+	}
+
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return &domain.User{}, err
