@@ -32,7 +32,7 @@ func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
 	e.POST("/signup", handler.CreateUser)
 	e.POST("/login", handler.Login)
 	e.GET("/logout", handler.Logout)
-	e.POST("/notification-preferences", handler.UpdateNotificationPreferences)
+	e.PATCH("/notification-preferences", handler.UpdateNotificationPreferences)
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
@@ -81,12 +81,6 @@ func (h *UserHandler) UpdateNotificationPreferences(c echo.Context) error {
 	cookie, err := c.Cookie("jwt")
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ResponseError{Message: err.Error()})
-		return nil
-	}
-
-	var preferences domain.NotificationPreferences
-	if err := c.Bind(&preferences); err != nil {
-		c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
 		return nil
 	}
 

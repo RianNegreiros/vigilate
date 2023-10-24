@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"log"
 
 	"github.com/RianNegreiros/vigilate/domain"
@@ -50,8 +51,8 @@ func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*d
 
 func (r *postgresUserRepo) GetUserByID(ctx context.Context, id int) (*domain.User, error) {
 	u := domain.User{}
-	query := "SELECT id, email, username, password FROM users WHERE id = $1"
-	err := r.DB.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Email, &u.Username, &u.Password)
+	query := "SELECT id, email, username, password, notification_preferences->>'email_enabled' FROM users WHERE id = $1"
+	err := r.DB.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Email, &u.Username, &u.Password, &u.NotificationPreferences.EmailEnabled)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return &domain.User{}, err
@@ -61,10 +62,35 @@ func (r *postgresUserRepo) GetUserByID(ctx context.Context, id int) (*domain.Use
 }
 
 func (r *postgresUserRepo) UpdateNotificationPreferences(ctx context.Context, userID int, emailEnabled bool) error {
-	query := "UPDATE users SET notification_preferences = $1 WHERE id = $2"
-	_, err := r.DB.ExecContext(ctx, query, emailEnabled, userID)
+	var notificationPreferencesJSON []byte
+	query := "SELECT notification_preferences FROM users WHERE id = $1"
+	err := r.DB.QueryRowContext(ctx, query, userID).Scan(&notificationPreferencesJSON)
 	if err != nil {
-		log.Println("Error executing statement: ", err)
+		log.Println("Error fetching notification preferences: ", err)
+		return err
+	}
+
+	var notificationPreferences domain.NotificationPreferences
+	err = json.Unmarshal(notificationPreferencesJSON, &notificationPreferences)
+	if err != nil {
+		log.Println("Error unmarshaling JSON: ", err)
+		return err
+	}
+
+	log.Print(emailEnabled)
+
+	notificationPreferences.EmailEnabled = emailEnabled
+
+	updatedNotificationPreferencesJSON, err := json.Marshal(notificationPreferences)
+	if err != nil {
+		log.Println("Error marshaling JSON: ", err)
+		return err
+	}
+
+	updateQuery := "UPDATE users SET notification_preferences = $1 WHERE id = $2"
+	_, err = r.DB.ExecContext(ctx, updateQuery, updatedNotificationPreferencesJSON, userID)
+	if err != nil {
+		log.Println("Error updating notification preferences: ", err)
 		return err
 	}
 

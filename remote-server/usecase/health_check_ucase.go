@@ -82,11 +82,14 @@ func (hc *healthCheckUsecase) updateServerStatus(ctx context.Context, server dom
 
 func (hc *healthCheckUsecase) sendNotifications(server domain.RemoteServer) {
 	topic := os.Getenv("KAFKA_TOPIC")
+	ctx, cancel := context.WithTimeout(context.Background(), hc.contextTimeout)
+	defer cancel()
+
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	message := fmt.Sprintf("Alert: Server Down\nServer: %s\nAddress: %s\nTimestamp: %s", server.Name, server.Address, timestamp)
 	hc.kafkaProducer.SendHealthCheckResultToKafka(message, topic)
 
-	user, err := hc.userRepo.GetUserByID(context.Background(), server.UserID)
+	user, err := hc.userRepo.GetUserByID(ctx, server.UserID)
 	if err != nil {
 		log.Printf("Error getting user: %v", err)
 		return
