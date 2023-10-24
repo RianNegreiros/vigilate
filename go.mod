@@ -9,6 +9,7 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/lib/pq v1.10.9
 	github.com/pusher/pusher-http-go v4.0.1+incompatible
+	github.com/resendlabs/resend-go v1.7.0
 	github.com/segmentio/kafka-go v0.4.44
 	golang.org/x/crypto v0.14.0
 )

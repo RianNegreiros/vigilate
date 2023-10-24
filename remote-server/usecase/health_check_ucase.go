@@ -8,19 +8,22 @@ import (
 	"time"
 
 	"github.com/RianNegreiros/vigilate/domain"
+	"github.com/RianNegreiros/vigilate/email"
 	"github.com/go-co-op/gocron"
 )
 
 type healthCheckUsecase struct {
 	remoteServerRepo domain.RemoteServerRepository
+	userRepo         domain.UserRepository
 	contextTimeout   time.Duration
 	kafkaProducer    domain.KafkaProducer
 	serverStatus     map[string]bool
 }
 
-func NewHealthCheckUsecase(r domain.RemoteServerRepository, timeout time.Duration, kafkaProducer domain.KafkaProducer) domain.HealthCheckUsecase {
+func NewHealthCheckUsecase(rsr domain.RemoteServerRepository, ur domain.UserRepository, timeout time.Duration, kafkaProducer domain.KafkaProducer) domain.HealthCheckUsecase {
 	return &healthCheckUsecase{
-		remoteServerRepo: r,
+		remoteServerRepo: rsr,
+		userRepo:         ur,
 		contextTimeout:   timeout,
 		kafkaProducer:    kafkaProducer,
 		serverStatus:     make(map[string]bool),
@@ -43,6 +46,9 @@ func (hc *healthCheckUsecase) performServerHealthChecks() {
 	}
 
 	for _, server := range servers {
+		if !server.IsActive && server.NextCheckTime.After(time.Now()) {
+			continue
+		}
 		go hc.checkServerStatus(ctx, server)
 	}
 }
@@ -79,4 +85,17 @@ func (hc *healthCheckUsecase) sendKafkaNotification(server domain.RemoteServer) 
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	message := fmt.Sprintf("Alert: Server Down\nServer: %s\nAddress: %s\nTimestamp: %s", server.Name, server.Address, timestamp)
 	hc.kafkaProducer.SendHealthCheckResultToKafka(message, topic)
+
+	user, err := hc.userRepo.GetUserByID(context.Background(), server.UserID)
+	if err != nil {
+		log.Printf("Error getting user: %v", err)
+		return
+	}
+
+	err = email.ResendEmailSender(user.Email, server.Name, server.Address, timestamp)
+
+	if err != nil {
+		log.Printf("Error sending email: %v", err)
+		return
+	}
 }

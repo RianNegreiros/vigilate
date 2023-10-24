@@ -45,6 +45,18 @@ func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*d
 	return &u, nil
 }
 
+func (r *postgresUserRepo) GetUserByID(ctx context.Context, id int) (*domain.User, error) {
+	u := domain.User{}
+	query := "SELECT id, email, username, password FROM users WHERE id = $1"
+	err := r.DB.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Email, &u.Username, &u.Password)
+	if err != nil {
+		log.Println("Error executing statement: ", err)
+		return &domain.User{}, err
+	}
+
+	return &u, nil
+}
+
 func (r *postgresUserRepo) AllPreferences(ctx context.Context) ([]domain.Preference, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
