@@ -64,7 +64,7 @@ func (hc *healthCheckUsecase) checkServerStatus(ctx context.Context, server doma
 	if !exists || prevState != server.IsActive {
 		hc.serverStatus[server.Address] = server.IsActive
 		if !server.IsActive {
-			hc.sendKafkaNotification(server)
+			hc.sendNotifications(server)
 		}
 	}
 }
@@ -80,7 +80,7 @@ func (hc *healthCheckUsecase) updateServerStatus(ctx context.Context, server dom
 	return nil
 }
 
-func (hc *healthCheckUsecase) sendKafkaNotification(server domain.RemoteServer) {
+func (hc *healthCheckUsecase) sendNotifications(server domain.RemoteServer) {
 	topic := os.Getenv("KAFKA_TOPIC")
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	message := fmt.Sprintf("Alert: Server Down\nServer: %s\nAddress: %s\nTimestamp: %s", server.Name, server.Address, timestamp)
@@ -92,10 +92,12 @@ func (hc *healthCheckUsecase) sendKafkaNotification(server domain.RemoteServer) 
 		return
 	}
 
-	err = email.ResendEmailSender(user.Email, server.Name, server.Address, timestamp)
+	if user.NotificationPreferences.EmailEnabled {
+		err = email.ResendEmailSender(user.Email, server.Name, server.Address, timestamp)
 
-	if err != nil {
-		log.Printf("Error sending email: %v", err)
-		return
+		if err != nil {
+			log.Printf("Error sending email: %v", err)
+			return
+		}
 	}
 }
