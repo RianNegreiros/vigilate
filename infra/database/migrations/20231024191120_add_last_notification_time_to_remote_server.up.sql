@@ -1,0 +1,2 @@
+ALTER TABLE remote_servers
+ADD COLUMN last_notification_time TIMESTAMP;

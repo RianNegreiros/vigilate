@@ -12,6 +12,8 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
+const healthCheckInterval = 5 * time.Second
+
 type healthCheckUsecase struct {
 	remoteServerRepo domain.RemoteServerRepository
 	userRepo         domain.UserRepository
@@ -32,7 +34,7 @@ func NewHealthCheckUsecase(rsr domain.RemoteServerRepository, ur domain.UserRepo
 
 func (hc *healthCheckUsecase) StartHealthChecksScheduler() {
 	scheduler := gocron.NewScheduler(time.UTC)
-	scheduler.Every(5).Seconds().Do(hc.performServerHealthChecks)
+	scheduler.Every(healthCheckInterval).Seconds().Do(hc.performServerHealthChecks)
 	scheduler.StartAsync()
 }
 
@@ -49,6 +51,11 @@ func (hc *healthCheckUsecase) performServerHealthChecks() {
 		if !server.IsActive && server.NextCheckTime.After(time.Now()) {
 			continue
 		}
+
+		if time.Since(server.LastCheckTime) < time.Second*5 {
+			continue
+		}
+
 		go hc.checkServerStatus(ctx, server)
 	}
 }
@@ -64,7 +71,7 @@ func (hc *healthCheckUsecase) checkServerStatus(ctx context.Context, server doma
 	if !exists || prevState != server.IsActive {
 		hc.serverStatus[server.Address] = server.IsActive
 		if !server.IsActive {
-			hc.sendKafkaNotification(server)
+			hc.sendNotifications(server)
 		}
 	}
 }
@@ -72,7 +79,7 @@ func (hc *healthCheckUsecase) checkServerStatus(ctx context.Context, server doma
 func (hc *healthCheckUsecase) updateServerStatus(ctx context.Context, server domain.RemoteServer) error {
 	server.IsActive = isServerUp(server.Address)
 	server.LastCheckTime = time.Now()
-	server.NextCheckTime = time.Now().Add(time.Second * 5)
+	server.NextCheckTime = time.Now().Add(healthCheckInterval)
 	err := hc.remoteServerRepo.Update(ctx, &server)
 	if err != nil {
 		return err
@@ -80,22 +87,34 @@ func (hc *healthCheckUsecase) updateServerStatus(ctx context.Context, server dom
 	return nil
 }
 
-func (hc *healthCheckUsecase) sendKafkaNotification(server domain.RemoteServer) {
+func (hc *healthCheckUsecase) sendNotifications(server domain.RemoteServer) {
 	topic := os.Getenv("KAFKA_TOPIC")
+	ctx, cancel := context.WithTimeout(context.Background(), hc.contextTimeout)
+	defer cancel()
+
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	message := fmt.Sprintf("Alert: Server Down\nServer: %s\nAddress: %s\nTimestamp: %s", server.Name, server.Address, timestamp)
 	hc.kafkaProducer.SendHealthCheckResultToKafka(message, topic)
 
-	user, err := hc.userRepo.GetUserByID(context.Background(), server.UserID)
+	user, err := hc.userRepo.GetUserByID(ctx, server.UserID)
 	if err != nil {
 		log.Printf("Error getting user: %v", err)
 		return
 	}
 
-	err = email.ResendEmailSender(user.Email, server.Name, server.Address, timestamp)
+	if user.NotificationPreferences.EmailEnabled {
+		err = email.ResendEmailSender(user.Email, server.Name, server.Address, timestamp)
 
-	if err != nil {
-		log.Printf("Error sending email: %v", err)
-		return
+		if err != nil {
+			log.Printf("Error sending email: %v", err)
+			return
+		}
+
+		server.LastNotificationTime = time.Now()
+		err = hc.remoteServerRepo.Update(ctx, &server)
+		if err != nil {
+			log.Printf("Error updating server: %v", err)
+			return
+		}
 	}
 }

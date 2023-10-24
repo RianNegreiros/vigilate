@@ -20,7 +20,7 @@ func NewPostgresRemoteServerRepo(db *sql.DB) domain.RemoteServerRepository {
 
 func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *domain.RemoteServer) (err error) {
 	var lastInsertId int
-	query := `INSERT INTO remote_servers (user_id, name, address, is_active, last_check_time, next_check_time ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
+	query := `INSERT INTO remote_servers (user_id, name, address, is_active, last_check_time, next_check_time, last_notification_time) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	if err != nil {
 		log.Println("Error preparing statement: ", err)
@@ -28,7 +28,7 @@ func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *dom
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime)
+	_, err = stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime, remoteServer.LastNotificationTime)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return
