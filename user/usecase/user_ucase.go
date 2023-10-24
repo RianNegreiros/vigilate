@@ -100,16 +100,19 @@ func (s *userUsecase) Login(c context.Context, req *domain.LoginUserRequest) (*d
 	return &domain.LoginUserResponse{AccessToken: ss, Username: u.Username, ID: strconv.Itoa(int(u.ID))}, nil
 }
 
-func (s *userUsecase) UpdateNotificationPreferences(ctx context.Context, userID int, preferences domain.NotificationPreferences) error {
-	existingUser, err := s.userRepo.GetUserByID(ctx, userID)
+func (s *userUsecase) UpdateNotificationPreferences(ctx context.Context, userID int) error {
+	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
+	defer cancel()
+
+	user, err := s.userRepo.GetUserByID(ctx, userID)
 	if err != nil {
 		log.Println("Error getting user: ", err)
 		return err
 	}
 
-	existingUser.NotificationPreferences = preferences
+	emailEnabled := !user.NotificationPreferences.EmailEnabled
 
-	err = s.userRepo.UpdateNotificationPreferences(ctx, userID, existingUser.NotificationPreferences)
+	err = s.userRepo.UpdateNotificationPreferences(ctx, userID, emailEnabled)
 	if err != nil {
 		log.Println("Error updating notification preferences: ", err)
 		return err

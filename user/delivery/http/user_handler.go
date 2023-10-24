@@ -96,7 +96,7 @@ func (h *UserHandler) UpdateNotificationPreferences(c echo.Context) error {
 		return nil
 	}
 
-	err = h.UserUsecase.UpdateNotificationPreferences(c.Request().Context(), userID, preferences)
+	err = h.UserUsecase.UpdateNotificationPreferences(c.Request().Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
 		return nil

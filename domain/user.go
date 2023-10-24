@@ -46,11 +46,11 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByID(ctx context.Context, id int) (*User, error)
-	UpdateNotificationPreferences(ctx context.Context, userID int, preferences NotificationPreferences) error
+	UpdateNotificationPreferences(ctx context.Context, userID int, emailEnabled bool) error
 }
 
 type UserUsecase interface {
 	CreateUser(ctx context.Context, req *CreateUserRequest) (*CreateUserResponse, error)
 	Login(ctx context.Context, req *LoginUserRequest) (*LoginUserResponse, error)
-	UpdateNotificationPreferences(ctx context.Context, userID int, preferences NotificationPreferences) error
+	UpdateNotificationPreferences(ctx context.Context, userID int) error
 }
