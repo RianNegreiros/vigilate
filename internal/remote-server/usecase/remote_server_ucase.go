@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/RianNegreiros/vigilate/domain"
+	"github.com/RianNegreiros/vigilate/internal/domain"
 )
 
 type remoteServerUsecase struct {

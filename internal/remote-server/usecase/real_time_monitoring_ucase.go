@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/RianNegreiros/vigilate/domain"
+	"github.com/RianNegreiros/vigilate/internal/domain"
 	"github.com/pusher/pusher-http-go"
 )
 

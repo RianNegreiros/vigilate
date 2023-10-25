@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/RianNegreiros/vigilate/domain"
+	"github.com/RianNegreiros/vigilate/internal/domain"
 )
 
 type postgresUserRepo struct {

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/RianNegreiros/vigilate/domain"
+	"github.com/RianNegreiros/vigilate/internal/domain"
 )
 
 type postgresRemoteServerRepo struct {
