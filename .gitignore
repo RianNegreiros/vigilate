@@ -3,3 +3,9 @@ testdata
 
 # environment variables
 .env
+
+# node dependencies
+node_modules
+
+# asdf tool-versions
+.tool-versions
