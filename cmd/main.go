@@ -48,7 +48,7 @@ func main() {
 	kafkaProducer := kafka.NewKafkaProducer(kafkaWriterConfig.Brokers, kafkaWriterConfig.Topic, kafkaWriterConfig.Dialer)
 
 	kafkaReaderConfig := config.NewKafkaReaderConfig()
-	kafkaConsumer := kafka.NewKafkaConsumer(kafkaReaderConfig.Brokers, kafkaReaderConfig.Topic, kafkaReaderConfig.GroupID, kafkaWriterConfig.Dialer, pusherClient)
+	kafkaConsumer := kafka.NewKafkaConsumer(kafkaReaderConfig.Brokers, kafkaReaderConfig.Topic, kafkaReaderConfig.GroupID, kafkaWriterConfig.Dialer)
 
 	go func() {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -75,7 +75,8 @@ func main() {
 
 	rsr := _remoteServerRepo.NewPostgresRemoteServerRepo(dbConn.GetDB())
 	rsu := _remoteServerUsecase.NewRemoteServerUsecase(rsr, contextTimeout)
-	_remoteServerHandler.NewRemoteServerHandler(e, rsu)
+	rtm := _remoteServerUsecase.NewRealTimeMonitoringUsecase(pusherClient, rsr, contextTimeout)
+	_remoteServerHandler.NewRemoteServerHandler(e, rsu, rtm)
 
 	hcu := _remoteServerUsecase.NewHealthCheckUsecase(rsr, ur, contextTimeout, kafkaProducer)
 	hcu.StartHealthChecksScheduler()

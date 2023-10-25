@@ -125,3 +125,16 @@ func (r *postgresRemoteServerRepo) Update(ctx context.Context, remoteServer *dom
 
 	return
 }
+
+func (r *postgresRemoteServerRepo) GetByID(ctx context.Context, id int) (domain.RemoteServer, error) {
+	query := "SELECT id, user_id, name, address, is_active, last_check_time, next_check_time FROM remote_servers WHERE id=$1"
+	var server domain.RemoteServer
+
+	err := r.DB.QueryRowContext(ctx, query, id).Scan(&server.ID, &server.UserID, &server.Name, &server.Address, &server.IsActive, &server.LastCheckTime, &server.NextCheckTime)
+	if err != nil {
+		log.Println("Error executing statement: ", err)
+		return domain.RemoteServer{}, err
+	}
+
+	return server, nil
+}

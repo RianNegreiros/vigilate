@@ -12,8 +12,6 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
-const healthCheckInterval = 5 * time.Second
-
 type healthCheckUsecase struct {
 	remoteServerRepo domain.RemoteServerRepository
 	userRepo         domain.UserRepository
@@ -34,7 +32,7 @@ func NewHealthCheckUsecase(rsr domain.RemoteServerRepository, ur domain.UserRepo
 
 func (hc *healthCheckUsecase) StartHealthChecksScheduler() {
 	scheduler := gocron.NewScheduler(time.UTC)
-	scheduler.Every(healthCheckInterval).Seconds().Do(hc.performServerHealthChecks)
+	scheduler.Every(5).Minutes().Do(hc.performServerHealthChecks)
 	scheduler.StartAsync()
 }
 
@@ -79,7 +77,7 @@ func (hc *healthCheckUsecase) checkServerStatus(ctx context.Context, server doma
 func (hc *healthCheckUsecase) updateServerStatus(ctx context.Context, server domain.RemoteServer) error {
 	server.IsActive = isServerUp(server.Address)
 	server.LastCheckTime = time.Now()
-	server.NextCheckTime = time.Now().Add(healthCheckInterval)
+	server.NextCheckTime = time.Now().Add(time.Minute * 5)
 	err := hc.remoteServerRepo.Update(ctx, &server)
 	if err != nil {
 		return err

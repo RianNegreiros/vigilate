@@ -20,16 +20,19 @@ type ResponseError struct {
 }
 
 type RemoteServerHandler struct {
-	RemoteServerUsecase domain.RemoteServerUsecase
+	RemoteServerUsecase       domain.RemoteServerUsecase
+	RealTimeMonitoringUsecase domain.RealTimeMonitoringUsecase
 }
 
-func NewRemoteServerHandler(e *echo.Echo, us domain.RemoteServerUsecase) {
+func NewRemoteServerHandler(e *echo.Echo, r domain.RemoteServerUsecase, rt domain.RealTimeMonitoringUsecase) {
 	handler := &RemoteServerHandler{
-		RemoteServerUsecase: us,
+		RemoteServerUsecase:       r,
+		RealTimeMonitoringUsecase: rt,
 	}
 
 	e.POST("/remote-servers", handler.Create, middleware.JWTMiddleware)
 	e.GET("/remote-servers", handler.GetByUserID, middleware.JWTMiddleware)
+	e.POST("/remote-servers/:id/start-monitoring", handler.StartMonitoring, middleware.JWTMiddleware)
 }
 
 func (h *RemoteServerHandler) Create(c echo.Context) (err error) {
@@ -87,4 +90,18 @@ func getUserIDFromJWTToken(cookieValue string) (int, error) {
 	}
 
 	return 0, errors.New("ID claim not found in JWT token")
+}
+
+func (h *RemoteServerHandler) StartMonitoring(c echo.Context) error {
+	serverID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
+	}
+
+	err = h.RealTimeMonitoringUsecase.StartMonitoring(serverID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, ResponseError{Message: "Monitoring started successfully"})
 }
