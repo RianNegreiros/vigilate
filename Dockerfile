@@ -21,7 +21,6 @@ FROM alpine:3.14
 WORKDIR /app
 
 # Copy only the necessary files from the build stage.
-COPY --from=build /app/.env.docker /app/.env
 COPY --from=build /app/vigilate .
 
 # Expose the port your application will listen on.
