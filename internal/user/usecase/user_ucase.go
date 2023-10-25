@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/RianNegreiros/vigilate/domain"
-	"github.com/RianNegreiros/vigilate/util"
+	"github.com/RianNegreiros/vigilate/internal/domain"
+	"github.com/RianNegreiros/vigilate/internal/util"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )

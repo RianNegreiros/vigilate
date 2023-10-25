@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/RianNegreiros/vigilate/domain"
-	"github.com/RianNegreiros/vigilate/email"
+	"github.com/RianNegreiros/vigilate/internal/domain"
+	"github.com/RianNegreiros/vigilate/internal/email"
 	"github.com/go-co-op/gocron"
 )
 

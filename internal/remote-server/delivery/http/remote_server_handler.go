@@ -7,8 +7,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/RianNegreiros/vigilate/domain"
-	"github.com/RianNegreiros/vigilate/remote-server/delivery/http/middleware"
+	"github.com/RianNegreiros/vigilate/internal/domain"
+	"github.com/RianNegreiros/vigilate/internal/remote-server/delivery/http/middleware"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo"
 )

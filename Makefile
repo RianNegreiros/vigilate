@@ -1,15 +1,15 @@
 migrateup:
-	migrate -path infra/database/migrations -database "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable" -verbose up
+	migrate -path internal/database/migrations -database "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path infra/database/migrations -database "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable" -verbose down
+	migrate -path internal/database/migrations -database "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable" -verbose down
 
 migration:
 	@read -p "Enter migration name: " name; \
-	migrate create -ext sql -dir infra/database/migrations $$name
+	migrate create -ext sql -dir internal/database/migrations $$name
 
 dropdb:
-	migrate -source file://infra/database/migrations -database "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable" drop
+	migrate -source file://internal/database/migrations -database "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable" drop
 
 run:
 	go run cmd/main.go
