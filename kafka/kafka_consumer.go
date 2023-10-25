@@ -4,16 +4,14 @@ import (
 	"context"
 	"log"
 
-	"github.com/pusher/pusher-http-go"
 	"github.com/segmentio/kafka-go"
 )
 
 type KafkaConsumer struct {
-	reader       *kafka.Reader
-	pusherClient *pusher.Client
+	reader *kafka.Reader
 }
 
-func NewKafkaConsumer(brokers []string, topic string, groupID string, dialer *kafka.Dialer, pusherClient *pusher.Client) *KafkaConsumer {
+func NewKafkaConsumer(brokers []string, topic string, groupID string, dialer *kafka.Dialer) *KafkaConsumer {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: brokers,
 		Topic:   topic,
@@ -22,8 +20,7 @@ func NewKafkaConsumer(brokers []string, topic string, groupID string, dialer *ka
 	})
 
 	return &KafkaConsumer{
-		reader:       reader,
-		pusherClient: pusherClient,
+		reader: reader,
 	}
 }
 
@@ -34,16 +31,6 @@ func (kc *KafkaConsumer) ConsumeMessages(ctx context.Context, messageHandler fun
 		msg, err := kc.reader.ReadMessage(ctx)
 		if err != nil {
 			log.Println("Error reading message from kafka", err)
-			return err
-		}
-
-		messageContent := string(msg.Value)
-		channelName := "kafka-messages"
-		eventName := "kafka-message-received"
-		data := map[string]string{"message": messageContent}
-
-		if err := kc.pusherClient.Trigger(channelName, eventName, data); err != nil {
-			log.Println("Error triggering pusher event", err)
 			return err
 		}
 
