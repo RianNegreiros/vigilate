@@ -28,6 +28,7 @@ type RemoteServerRepository interface {
 	GetByUserID(ctx context.Context, userID int) ([]RemoteServer, error)
 	GetAll(ctx context.Context) ([]RemoteServer, error)
 	Update(ctx context.Context, server *RemoteServer) error
+	GetByID(ctx context.Context, id int) (RemoteServer, error)
 }
 
 type RemoteServerUsecase interface {
