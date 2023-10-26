@@ -9,7 +9,7 @@ import (
 
 	"github.com/RianNegreiros/vigilate/internal/domain"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 var domainURL = os.Getenv("DOMAIN_URL")
