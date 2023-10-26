@@ -7,17 +7,26 @@
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
   <link rel="stylesheet" href="../dist/style.css">
   <script src="js/navbar.js"></script>
+  <script src="js/modal.js"></script>
   <title>Vigilate</title>
   <style>
     /* Add custom CSS to style the grid cards */
     .grid-card {
       max-width: 20rem;
     }
+
+    #default-modal {
+      position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+    }
   </style>
 </head>
 
 <body>
   <div id="navbar-container"></div>
+  <div id="modal-container"></div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
     <!-- Card 1 -->
