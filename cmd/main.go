@@ -16,7 +16,8 @@ import (
 	_userRepo "github.com/RianNegreiros/vigilate/internal/user/repository/postgres"
 	_userUsecase "github.com/RianNegreiros/vigilate/internal/user/usecase"
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -70,6 +71,9 @@ func main() {
 	}()
 
 	e := echo.New()
+
+	corsConfig := config.CORSConfig()
+	e.Use(middleware.CORSWithConfig(corsConfig))
 
 	contextTimeout := time.Duration(10) * time.Second
 

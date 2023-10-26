@@ -36,6 +36,10 @@ func (s *userUsecase) CreateUser(ctx context.Context, req *domain.CreateUserRequ
 		return nil, domain.ErrDuplicateEmail
 	}
 
+	if req.Password != req.ConfirmPassword {
+		return nil, domain.ErrPasswordMismatch
+	}
+
 	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
 		log.Println("Error hashing password: ", err)
