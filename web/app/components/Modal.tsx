@@ -1,9 +1,40 @@
+"use client"
+
+import { useState } from "react";
+import { CreateServer } from "../models";
+import { createServer } from "../util/api";
+
 interface ModalProps {
   hideModal: boolean;
   closeModal: () => void;
+  createServer: (server: CreateServer) => void;
 }
 
-export default function Modal({ hideModal, closeModal }: ModalProps) {
+export default function Modal({ hideModal, closeModal, createServer }: ModalProps) {
+  const [formData, setFormData] = useState<CreateServer>({
+    user_id: 0,
+    name: "",
+    address: ""
+  })
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      createServer(formData);
+      closeModal();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value
+    })
+  }
+
   return (
     <div id="default-modal" tabIndex={-1} aria-hidden="true"
       className={`fixed inset-0 z-50 overflow-y-auto ${hideModal ? "hidden" : ""}`}>
@@ -25,10 +56,11 @@ export default function Modal({ hideModal, closeModal }: ModalProps) {
             </button>
           </div>
 
-          <form className="p-6 space-y-6">
+          <form className="p-6 space-y-6" onSubmit={handleSubmit}>
             <div className="mb-6">
               <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
               <input type="text" id="name"
+                onChange={handleChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Personal Website" required />
             </div>
@@ -37,23 +69,23 @@ export default function Modal({ hideModal, closeModal }: ModalProps) {
                 Server Address
               </label>
               <input type="text" id="address"
+                onChange={handleChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="https://personalwebsite.com" required />
             </div>
+            <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+              <button data-modal-hide="default-modal" type="submit"
+                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Create
+              </button>
+              <button data-modal-hide="default-modal" type="button"
+                onClick={closeModal}
+                className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
           </form>
-
-          <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-            <button data-modal-hide="default-modal" type="submit"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-              Create
-            </button>
-            <button data-modal-hide="default-modal" type="button"
-              onClick={closeModal}
-              className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-            >
-              Cancel
-            </button>
-          </div>
         </div>
       </div>
     </div>

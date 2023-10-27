@@ -28,3 +28,9 @@ export interface Server {
   last_check_time: string
   next_check_time: string
 }
+
+export interface CreateServer {
+  user_id: number
+  name: string
+  address: string
+}
