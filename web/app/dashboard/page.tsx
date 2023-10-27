@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import NavBar from "../components/Navbar";
 import Modal from "../components/Modal";
 import { usePathname } from "next/navigation";
-import { getServers } from "../util/api";
-import { Server } from "../models";
-import { format } from 'date-fns'
+import { createServer, getServers } from "../util/api";
+import { CreateServer, Server } from "../models";
+import { format } from "date-fns";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -16,16 +16,16 @@ export default function DashboardPage() {
 
   const openModal = () => {
     setIsModalOpen(false);
-  }
+  };
 
   const closeModal = () => {
     setIsModalOpen(true);
-  }
+  };
 
   const getDomain = (address: string) => {
     const url = new URL(address);
     return url.hostname;
-  }
+  };
 
   useEffect(() => {
     async function getServersData() {
@@ -33,26 +33,42 @@ export default function DashboardPage() {
       setServers(servers);
     }
     getServersData();
-  }, [])
+  }, []);
+
+  const handleCreateServer = async (formData: CreateServer) => {
+    try {
+      await createServer(formData);
+      const updatedServers = await getServers();
+      setServers(updatedServers);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <>
       <NavBar openModal={openModal} pathname={pathname} />
 
-      <Modal hideModal={isModalOpen} closeModal={closeModal} />
+      <Modal hideModal={isModalOpen} closeModal={closeModal} createServer={handleCreateServer} />
 
-      {servers.map((server) => (
-        <div key={server.id} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          <div className="grid-card">
-            <div
-              className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:border-gray-300">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+        {servers.map((server) => (
+          <div key={server.id} className="grid-card w-64 h-80 overflow-hidden"> {/* Adjust width and height as needed */}
+            <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:border-gray-300">
               <div className="flex justify-between mb-4 rounded-t sm:mb-5">
                 <div className="text-lg text-gray-900 md:text-xl dark:text-white">
-                  <h3 className="font-semibold text-xl leading-6 text-gray-900 dark:text-white">
+                  <h3 className="font-semibold text-xl leading-6 text-gray-900 dark:text-white overflow-ellipsis">
                     {server.name}
                   </h3>
+                  <div className="flex items-center space-x-2 py-1">
+                    <span
+                      className={`inline-flex items-center bg-green-100 ${server.is_active ? "text-green-800 dark:bg-green-900 dark:text-green-300" : "text-red-800 dark:bg-red-900 dark:text-red-300"} text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full`}>
+                      <span className={`w-2 h-2 mr-1 rounded-full ${server.is_active ? "bg-green-500" : "bg-red-500"}`}></span>
+                      {server.is_active ? "Online" : "Offline"}
+                    </span>
+                  </div>
                   <p className="flex items-center text-base mt-1 leading-4 text-gray-600 dark:text-gray-400" title={server.address}>
-                    {getDomain(server.address)}
+                    <span className="overflow-ellipsis" style={{ maxWidth: "90%" }}>{getDomain(server.address)}</span>
                     <Link target="_blank" rel="noopener noreferrer" href={server.address}>
                       <svg className="ml-1 h-3 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7.529 7.988a2.502 2.502 0 0 1 5 .191A2.441 2.441 0 0 1 10 10.582V12m-.01 3.008H10M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -60,16 +76,9 @@ export default function DashboardPage() {
                     </Link>
                   </p>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`inline-flex items-center bg-green-100 ${server.is_active ? "text-green-800 dark:bg-green-900 dark:text-green-300" : "text-red-800 dark:bg-red-900 dark:text-red-300"} text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full`}>
-                    <span className={`w-2 h-2 mr-1 rounded-full ${server.is_active ? "bg-green-500" : "bg-red-500"}`}></span>
-                    {server.is_active ? "Online" : "Offline"}
-                  </span>
-                </div>
               </div>
               <ul role="list" className="max-w-sm divide-y divide-gray-200 dark:divide-gray-700">
-                <li className="py-3 sm:py-4">
+                <li className="py-3 sm:py-3">
                   <div className="flex items-center space-x-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-900 truncate dark:text-white">
@@ -109,9 +118,8 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </div>
-      ))}
-
+        ))}
+      </div>
     </>
-  )
+  );
 }

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { LoginData, RegisterData } from '../models';
+import { CreateServer, LoginData, RegisterData } from '../models';
 import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -63,4 +63,15 @@ async function getServers() {
   return response.data;
 }
 
-export { register, login, logout, getUserById, updateEmailNotifications, getServers};
+async function createServer(formData: CreateServer) {
+  const cookie = Cookies.get("user");
+  const { id } = JSON.parse(cookie || "{}");
+  formData.user_id = Number(id);
+  console.log(formData);
+  const response = await axios.post(`${API_URL}/remote-servers`, formData, {
+    withCredentials: true,
+  })
+  return response.data;
+}
+
+export { register, login, logout, getUserById, updateEmailNotifications, getServers, createServer};
