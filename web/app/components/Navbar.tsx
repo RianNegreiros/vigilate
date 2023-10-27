@@ -13,14 +13,15 @@ interface NavBarProps {
 
 export default function NavBar({ openModal, pathname }: NavBarProps) {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [user, setUser] = useState({ username: "", email: "" });
   const dropdown = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const cookie = Cookies.get("user")
-
-  const user = cookie ? JSON.parse(cookie) : null
-
-  const { username, email } = user
+  useEffect(() => {
+    const cookie = Cookies.get("user");
+    const userData = JSON.parse(cookie || "{}");
+    setUser(userData);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -121,11 +122,11 @@ export default function NavBar({ openModal, pathname }: NavBarProps) {
                     id="user-menu-button" aria-expanded="false" aria-haspopup="true" onClick={toggleDropdown}>
                     <span className="absolute -inset-1.5"></span>
                     <span className="sr-only">Open user menu</span>
-                    <svg className="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z" />
-                    </svg>
+
+                    <div className="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                      <svg className="absolute w-12 h-12 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"></path></svg>
+                    </div>
+
                   </button>
                 </div>
 
@@ -134,8 +135,8 @@ export default function NavBar({ openModal, pathname }: NavBarProps) {
                   role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabIndex={-1} id="user-menu" ref={dropdown}>
                   {pathname === "/dashboard" && (
                     <div className="px-4 py-3">
-                      <span className="block text-sm text-gray-900 dark:text-white">{username}</span>
-                      <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">{email}</span>
+                      <span className="block text-sm text-gray-900 dark:text-white">{user.username}</span>
+                      <span className="block text-sm text-gray-500 truncate dark:text-gray-400">{user.email}</span>
                     </div>
                   )}
                   <ul className="py-2" aria-labelledby="user-menu-button">

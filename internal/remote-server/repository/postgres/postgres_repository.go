@@ -51,19 +51,24 @@ func (r *postgresRemoteServerRepo) Exists(ctx context.Context, address string) (
 }
 
 func (r *postgresRemoteServerRepo) GetByUserID(ctx context.Context, userID int) ([]domain.RemoteServer, error) {
-	query := "SELECT id, name, address, is_active, last_check_time, next_check_time FROM remote_servers WHERE user_id=$1"
-	var servers []domain.RemoteServer
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT id, name, user_id, address, is_active, last_check_time, next_check_time FROM remote_servers WHERE user_id=$1")
+	if err != nil {
+		log.Println("Error preparing statement: ", err)
+		return nil, err
+	}
+	defer stmt.Close()
 
-	rows, err := r.DB.QueryContext(ctx, query, userID)
+	rows, err := stmt.QueryContext(ctx, userID)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return nil, err
 	}
 	defer rows.Close()
 
+	var servers []domain.RemoteServer
 	for rows.Next() {
 		var server domain.RemoteServer
-		err := rows.Scan(&server.ID, &server.Name, &server.Address, &server.IsActive, &server.LastCheckTime, &server.NextCheckTime)
+		err := rows.Scan(&server.ID, &server.Name, &server.UserID, &server.Address, &server.IsActive, &server.LastCheckTime, &server.NextCheckTime)
 		if err != nil {
 			log.Println("Error scanning rows: ", err)
 			return nil, err

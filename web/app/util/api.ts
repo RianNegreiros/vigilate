@@ -56,4 +56,11 @@ async function updateEmailNotifications() {
   return response.data;
 }
 
-export { register, login, logout, getUserById, updateEmailNotifications };
+async function getServers() {
+  const response = await axios.get(`${API_URL}/remote-servers`, {
+    withCredentials: true,
+  })
+  return response.data;
+}
+
+export { register, login, logout, getUserById, updateEmailNotifications, getServers};

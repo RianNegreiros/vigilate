@@ -18,3 +18,13 @@ export interface User {
     email_enabled: boolean
   }
 }
+
+export interface Server {
+  id: string
+  user_id: string
+  name: string
+  address: string
+  is_active: boolean
+  last_check_time: string
+  next_check_time: string
+}
