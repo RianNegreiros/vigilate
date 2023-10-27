@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/RianNegreiros/vigilate/internal/domain"
@@ -31,11 +33,23 @@ func (s *userUsecase) CreateUser(ctx context.Context, req *domain.CreateUserRequ
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
 
+	// Check if the provided email is valid
+	if !isValidEmail(req.Email) {
+		return nil, domain.ErrInvalidEmail
+	}
+
+	// Check if the email is unique
 	userExists, _ := s.userRepo.GetUserByEmail(ctx, req.Email)
 	if userExists.Email != "" {
 		return nil, domain.ErrDuplicateEmail
 	}
 
+	// Ensure that the password meets your strength requirements (e.g., length, special characters)
+	if !isStrongPassword(req.Password) {
+		return nil, domain.ErrWeakPassword
+	}
+
+	// Verify that the "Password" and "ConfirmPassword" fields match
 	if req.Password != req.ConfirmPassword {
 		return nil, domain.ErrPasswordMismatch
 	}
@@ -81,6 +95,12 @@ func (s *userUsecase) Login(c context.Context, req *domain.LoginUserRequest) (*d
 		return &domain.LoginUserResponse{}, domain.ErrNoRecord
 	}
 
+	// Check if the provided password is empty or too short
+	if len(req.Password) < 8 {
+		return &domain.LoginUserResponse{}, domain.ErrInvalidPassword
+	}
+
+	// Verify the password
 	err = util.CheckPassword(req.Password, u.Password)
 	if err == bcrypt.ErrMismatchedHashAndPassword {
 		return &domain.LoginUserResponse{}, domain.ErrInvalidCredentials
@@ -138,4 +158,37 @@ func (s *userUsecase) GetByID(ctx context.Context, userID int) (*domain.User, er
 	}
 
 	return user, nil
+}
+
+func isValidEmail(email string) bool {
+	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+
+	match, _ := regexp.MatchString(emailPattern, email)
+	return match
+}
+
+func isStrongPassword(password string) bool {
+	if len(password) < 8 {
+		return false // Minimum length requirement not met
+	}
+
+	// Check for at least one uppercase letter
+	if !strings.ContainsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+		return false
+	}
+
+	// Check for at least one lowercase letter
+	if !strings.ContainsAny(password, "abcdefghijklmnopqrstuvwxyz") {
+		return false
+	}
+
+	// Check for at least one special character (you can customize this as needed)
+	specialCharacters := "!@#$%^&*()-_=+[]{}|;:'\",<.>/?"
+	for _, char := range password {
+		if strings.ContainsRune(specialCharacters, char) {
+			return true
+		}
+	}
+
+	return false
 }
