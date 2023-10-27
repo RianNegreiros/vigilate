@@ -51,7 +51,7 @@ export default function DashboardPage() {
 
       <Modal hideModal={isModalOpen} closeModal={closeModal} createServer={handleCreateServer} />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+      <div className="min-h-screen max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {servers.map((server) => (
           <div key={server.id} className="grid-card w-64 h-80 overflow-hidden"> {/* Adjust width and height as needed */}
             <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:border-gray-300">
