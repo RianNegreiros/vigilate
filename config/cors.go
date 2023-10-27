@@ -9,11 +9,11 @@ import (
 )
 
 func CORSConfig() middleware.CORSConfig {
-	clientUrl := os.Getenv("CLIENT_URL")
+	clientURL := os.Getenv("CLIENT_URL")
 	return middleware.CORSConfig{
-		AllowOrigins:     []string{clientUrl},
+		AllowOrigins:     []string{clientURL},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
-		AllowHeaders:     []string{echo.HeaderContentType, echo.HeaderAuthorization},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}
 }

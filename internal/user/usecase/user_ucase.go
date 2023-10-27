@@ -68,6 +68,7 @@ func (s *userUsecase) CreateUser(ctx context.Context, req *domain.CreateUserRequ
 type MyJWTClaims struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	jwt.RegisteredClaims
 }
 
@@ -90,6 +91,7 @@ func (s *userUsecase) Login(c context.Context, req *domain.LoginUserRequest) (*d
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyJWTClaims{
 		ID:       strconv.Itoa(int(u.ID)),
 		Username: u.Username,
+		Email:    u.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    strconv.Itoa(int(u.ID)),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
@@ -101,7 +103,7 @@ func (s *userUsecase) Login(c context.Context, req *domain.LoginUserRequest) (*d
 		return &domain.LoginUserResponse{}, err
 	}
 
-	return &domain.LoginUserResponse{AccessToken: ss, Username: u.Username, ID: strconv.Itoa(int(u.ID))}, nil
+	return &domain.LoginUserResponse{AccessToken: ss, Username: u.Username, ID: strconv.Itoa(int(u.ID)), Email: u.Email}, nil
 }
 
 func (s *userUsecase) UpdateNotificationPreferences(ctx context.Context, userID int) error {
@@ -123,4 +125,17 @@ func (s *userUsecase) UpdateNotificationPreferences(ctx context.Context, userID 
 	}
 
 	return nil
+}
+
+func (s *userUsecase) GetByID(ctx context.Context, userID int) (*domain.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
+	defer cancel()
+
+	user, err := s.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		log.Println("Error getting user: ", err)
+		return nil, err
+	}
+
+	return user, nil
 }

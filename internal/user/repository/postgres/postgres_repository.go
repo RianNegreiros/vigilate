@@ -77,8 +77,6 @@ func (r *postgresUserRepo) UpdateNotificationPreferences(ctx context.Context, us
 		return err
 	}
 
-	log.Print(emailEnabled)
-
 	notificationPreferences.EmailEnabled = emailEnabled
 
 	updatedNotificationPreferencesJSON, err := json.Marshal(notificationPreferences)
