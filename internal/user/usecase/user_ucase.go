@@ -95,12 +95,6 @@ func (s *userUsecase) Login(c context.Context, req *domain.LoginUserRequest) (*d
 		return &domain.LoginUserResponse{}, domain.ErrNoRecord
 	}
 
-	// Check if the provided password is empty or too short
-	if len(req.Password) < 8 {
-		return &domain.LoginUserResponse{}, domain.ErrInvalidPassword
-	}
-
-	// Verify the password
 	err = util.CheckPassword(req.Password, u.Password)
 	if err == bcrypt.ErrMismatchedHashAndPassword {
 		return &domain.LoginUserResponse{}, domain.ErrInvalidCredentials
