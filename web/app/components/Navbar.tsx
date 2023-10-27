@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { logout } from "../util/api";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
 interface NavBarProps {
   openModal?: () => void;
@@ -14,6 +15,12 @@ export default function NavBar({ openModal, pathname }: NavBarProps) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdown = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const cookie = Cookies.get("user")
+
+  const user = cookie ? JSON.parse(cookie) : null
+
+  const { username, email } = user
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -127,8 +134,8 @@ export default function NavBar({ openModal, pathname }: NavBarProps) {
                   role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabIndex={-1} id="user-menu" ref={dropdown}>
                   {pathname === "/dashboard" && (
                     <div className="px-4 py-3">
-                      <span className="block text-sm text-gray-900 dark:text-white">John Doe</span>
-                      <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">name@mail.com</span>
+                      <span className="block text-sm text-gray-900 dark:text-white">{username}</span>
+                      <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">{email}</span>
                     </div>
                   )}
                   <ul className="py-2" aria-labelledby="user-menu-button">

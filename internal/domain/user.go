@@ -41,6 +41,7 @@ type LoginUserResponse struct {
 	AccessToken string `json:"access_token"`
 	ID          string `json:"id"`
 	Username    string `json:"username"`
+	Email       string `json:"email"`
 }
 
 type UserRepository interface {
@@ -54,4 +55,5 @@ type UserUsecase interface {
 	CreateUser(ctx context.Context, req *CreateUserRequest) (*CreateUserResponse, error)
 	Login(ctx context.Context, req *LoginUserRequest) (*LoginUserResponse, error)
 	UpdateNotificationPreferences(ctx context.Context, userID int) error
+	GetByID(ctx context.Context, userID int) (*User, error)
 }

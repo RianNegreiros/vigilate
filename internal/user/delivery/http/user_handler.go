@@ -12,8 +12,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var domainURL = os.Getenv("DOMAIN_URL")
-
 var jwtSecret = os.Getenv("JWT_SECRET")
 
 type ResponseError struct {
@@ -33,6 +31,7 @@ func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
 	e.POST("/login", handler.Login)
 	e.GET("/logout", handler.Logout)
 	e.PATCH("/notification-preferences", handler.UpdateNotificationPreferences)
+	e.GET("/users/:id", handler.GetByID)
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
@@ -80,13 +79,15 @@ func (h *UserHandler) Logout(c echo.Context) error {
 func (h *UserHandler) UpdateNotificationPreferences(c echo.Context) error {
 	cookie, err := c.Cookie("jwt")
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, ResponseError{Message: err.Error()})
+		c.JSON(http.StatusUnauthorized, ResponseError{Message: "error getting cookie"})
+		log.Println("Error getting cookie: ", err)
 		return nil
 	}
 
 	userID, err := getUserIDFromJWTToken(cookie.Value)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, ResponseError{Message: err.Error()})
+		c.JSON(http.StatusUnauthorized, ResponseError{Message: "invalid token"})
+		log.Println("Error getting user ID from JWT token: ", err)
 		return nil
 	}
 
@@ -101,14 +102,14 @@ func (h *UserHandler) UpdateNotificationPreferences(c echo.Context) error {
 }
 
 func writeCookie(c echo.Context, name, value string, maxAge int) {
+	domain := os.Getenv("DOMAIN")
 	cookie := new(http.Cookie)
 	cookie.Name = name
 	cookie.Value = value
 	cookie.MaxAge = maxAge
 	cookie.Path = "/"
-	cookie.Domain = domainURL
-	cookie.Secure = false
-	cookie.HttpOnly = true
+	cookie.Domain = domain
+	cookie.HttpOnly = false
 	c.SetCookie(cookie)
 }
 
@@ -133,4 +134,21 @@ func getUserIDFromJWTToken(cookieValue string) (int, error) {
 	}
 
 	return 0, errors.New("ID claim not found in JWT token")
+}
+
+func (h *UserHandler) GetByID(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
+		return nil
+	}
+
+	user, err := h.UserUsecase.GetByID(c.Request().Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
+		return nil
+	}
+
+	c.JSON(http.StatusOK, user)
+	return nil
 }
