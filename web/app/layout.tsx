@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-white text-black dark:bg-gray-900 dark:text-white h-full selection:bg-gray-50 dark:selection:bg-gray-800`}>
-        <main className='flex flex-col min-h-screen max-w-6xl mx-auto'>
+        <main className='flex flex-col'>
           {children}
         </main>
       </body>
