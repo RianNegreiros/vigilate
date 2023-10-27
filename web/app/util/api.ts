@@ -20,4 +20,9 @@ async function login(formData: LoginData) {
   return response.data;
 }
 
-export { register, login };
+async function logout() {
+  const response = await axios.get(`${API_URL}/logout`);
+  return response.data;
+}
+
+export { register, login, logout };
