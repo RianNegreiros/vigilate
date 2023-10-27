@@ -24,17 +24,19 @@ export default function Home() {
         <section className="bg-white dark:bg-gray-900 flex-grow">
           <div className="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 md:grid md:grid-cols-2 sm:py-16 lg:px-6">
             <div className="w-full dark:hidden">
-              <Image src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup.svg" alt="dashboard image" width={400} height={300} />
+              <Image src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup.svg" alt="dashboard image"
+                width={400} height={300} priority />
             </div>
             <div className="w-full hidden dark:block">
-              <Image src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup-dark.svg" alt="dashboard image" width={400} height={300} />
+              <Image src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup-dark.svg" alt="dashboard image"
+                width={400} height={300} />
             </div>
             <div className="mt-4 md:mt-0">
               <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">Monitor Remote Servers in Real Time and Stay Informed</h2>
               <p className="mb-6 font-light text-gray-500 md:text-lg dark:text-gray-400">Our platform allows you to monitor remote servers in real time, providing you with critical data and immediate notifications. Keep your systems running smoothly and avoid downtime with our powerful monitoring tools.</p>
               <Link href="/register" className="inline-flex items-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:focus:ring-primary-900">
                 Get Started
-                <svg className="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                <svg className="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
               </Link>
             </div>
           </div>
@@ -50,25 +52,25 @@ export default function Home() {
                 <path
                   d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
               </svg>
-              <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
+              <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Vigilate</span>
             </a>
             <ul className="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
               <li>
-                <a href="#" className="mr-4 hover:underline md:mr-6 ">About</a>
+                <a href="https://github.com/RianNegreiros/vigilate" className="mr-4 hover:underline md:mr-6 ">About</a>
               </li>
               <li>
-                <a href="#" className="mr-4 hover:underline md:mr-6">Privacy Policy</a>
+                <a href="/terms" className="mr-4 hover:underline md:mr-6">Privacy Policy</a>
               </li>
               <li>
-                <a href="#" className="mr-4 hover:underline md:mr-6 ">Licensing</a>
+                <a href="https://github.com/RianNegreiros/vigilate/blob/main/LICENSE" className="mr-4 hover:underline md:mr-6 ">Licensing</a>
               </li>
               <li>
-                <a href="#" className="hover:underline">Contact</a>
+                <a href="mailto:riannegreiros@gmail.com" className="hover:underline">Contact</a>
               </li>
             </ul>
           </div>
           <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
-          <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" className="hover:underline">Flowbite™</a>. All Rights Reserved.</span>
+          <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" className="hover:underline">Vigilate™</a>. All Rights Reserved.</span>
         </div>
       </footer>
     </>
