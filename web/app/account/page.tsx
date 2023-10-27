@@ -1,5 +1,13 @@
+"use client"
+
+import { usePathname } from "next/navigation";
+import NavBar from "../components/Navbar";
+
 export default function AccountPage() {
+  let pathname = usePathname();
   return (
+    <>
+    <NavBar pathname={pathname} />
     <div className="flex flex-col min-h-screen max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="px-4 sm:px-0">
         <h3 className="text-base font-semibold leading-7 text-gray-900">User Profile</h3>
@@ -48,5 +56,6 @@ export default function AccountPage() {
         </dl>
       </div>
     </div>
+    </>
   )
 }
