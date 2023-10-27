@@ -13,4 +13,10 @@ var (
 	ErrDuplicateAddress = errors.New("models: duplicate address")
 	// ErrPasswordMismatch password mismatch error
 	ErrPasswordMismatch = errors.New("models: password mismatch")
+	// ErrWeakPassword weak password error
+	ErrWeakPassword = errors.New("models: weak password")
+	// ErrInvalidEmail invalid email error
+	ErrInvalidEmail = errors.New("models: invalid email")
+	// ErrInvalidPassword invalid password error
+	ErrInvalidPassword = errors.New("models: invalid password")
 )

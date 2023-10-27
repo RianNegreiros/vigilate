@@ -35,8 +35,8 @@ func (r *postgresUserRepo) CreateUser(ctx context.Context, user *domain.User) (*
 
 func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	u := domain.User{}
-	query := "SELECT id, email, username, password FROM users WHERE email = $1"
-	err := r.DB.QueryRowContext(ctx, query, email).Scan(&u.ID, &u.Email, &u.Username, &u.Password)
+	query := "SELECT id, email, username FROM users WHERE email = $1"
+	err := r.DB.QueryRowContext(ctx, query, email).Scan(&u.ID, &u.Email, &u.Username)
 	if err == sql.ErrNoRows {
 		return &domain.User{}, nil
 	}
@@ -51,8 +51,8 @@ func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*d
 
 func (r *postgresUserRepo) GetUserByID(ctx context.Context, id int) (*domain.User, error) {
 	u := domain.User{}
-	query := "SELECT id, email, username, password, notification_preferences->>'email_enabled' FROM users WHERE id = $1"
-	err := r.DB.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Email, &u.Username, &u.Password, &u.NotificationPreferences.EmailEnabled)
+	query := "SELECT id, email, username, notification_preferences->>'email_enabled, created_at updated_at FROM users WHERE id = $1"
+	err := r.DB.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Email, &u.Username, &u.NotificationPreferences.EmailEnabled, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return &domain.User{}, err

@@ -46,10 +46,17 @@ func (hc *healthCheckUsecase) performServerHealthChecks() {
 	}
 
 	for _, server := range servers {
-		if !server.IsActive && server.NextCheckTime.After(time.Now()) {
+		// Skip servers that are not active
+		if !server.IsActive {
 			continue
 		}
 
+		// Skip servers that are not due for a check
+		if server.NextCheckTime.After(time.Now()) {
+			continue
+		}
+
+		// Skip servers that were checked less than 5 seconds ago
 		if time.Since(server.LastCheckTime) < time.Second*5 {
 			continue
 		}
