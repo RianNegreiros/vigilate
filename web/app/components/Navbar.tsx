@@ -95,7 +95,7 @@ export default function NavBar({ openModal, pathname }: NavBarProps) {
               </button>
             )}
 
-            {pathname === "/account" && (
+            {pathname !== "/dashboard" && (
               <Link
                 href="/dashboard"
                 className="text-white inline-flex items-center bg-primary-700 hover:bg-primary-900 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover-bg-primary-700 dark:focus:ring-primary-800 hover:shadow-lg transition-background duration-300">
