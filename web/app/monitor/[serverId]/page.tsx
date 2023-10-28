@@ -1,11 +1,11 @@
 "use client"
 
-import { usePathname } from "next/navigation"
-import NavBar from "../../components/Navbar"
-import { useEffect, useState } from "react"
-import pusher from "../../util/pusher"
-import { getServerById } from "../../util/api"
-import { Server } from "../../models"
+import { usePathname } from "next/navigation";
+import NavBar from "../../components/Navbar";
+import { useEffect, useState } from "react";
+import pusher from "../../util/pusher";
+import { getServerById } from "../../util/api";
+import { Server } from "../../models";
 
 export default function MonitorPage({ params }: { params: { serverId: string } }) {
   const [serverData, setServerData] = useState<Server>({
@@ -16,24 +16,35 @@ export default function MonitorPage({ params }: { params: { serverId: string } }
     last_check_time: "",
     next_check_time: "",
     user_id: "",
-  })
-  const [isOnline, setIsOnline] = useState(serverData.is_active);
-  let pathname = usePathname()
-
-  const getServerByIdData = async () => {
-    const server = await getServerById(params.serverId)
-    if (server !== null) {
-      setServerData(server);
-    }
-  }
+  });
+  let pathname = usePathname();
+  const [isOnline, setIsOnline] = useState(false);
+  const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
-    getServerByIdData();
-    const channel = pusher.subscribe(`server-${params.serverId}`)
-    channel.bind("status-changed", (data: any) => {
-      setIsOnline(data.isServerUp);
+    async function getServerData() {
+      const serverData = await getServerById(params.serverId);
+      if (serverData !== null) {
+        setServerData(serverData);
+        setIsOnline(isOnline);
+      }
+    }
+    getServerData();
+
+    const channel = pusher.subscribe(`server-${params.serverId}`);
+
+    channel.bind('status-changed', (data: any) => {
+      if (!events.some(event => event.id === data.id)) {
+        setIsOnline(data.isServerUp);
+
+        setEvents(prevEvents => [...prevEvents, data]);
+      }
     });
-  });
+
+    return () => {
+      pusher.unsubscribe(params.serverId);
+    }
+  }, [params.serverId]); // Make sure to include params.serverId in the dependency array
 
   return (
     <>
@@ -54,24 +65,25 @@ export default function MonitorPage({ params }: { params: { serverId: string } }
             </tr>
           </thead>
           <tbody>
-            <tr className={`bg-white border-b ${isOnline ? 'bg-green-50' : 'bg-red-50'}`}>
-              <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
-                <div className="pl-3">
-                  <div className="text-base font-semibold">{serverData.name}</div>
-                </div>
-              </th>
-              <td className="px-6 py-4">{serverData.address}</td>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <div className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} mr-2`} />
-                  {isOnline ? 'Online' : 'Offline'}
-                </div>
-              </td>
-            </tr>
-
+            {events.map((event, index) => (
+              <tr key={event.id} className={`bg-white border-b ${event.isServerUp ? 'bg-green-50' : 'bg-red-50'}`}>
+                <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
+                  <div className="pl-3">
+                    <div className="text-base font-semibold">{serverData.name}</div>
+                  </div>
+                </th>
+                <td className="px-6 py-4">{serverData.address}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center">
+                    <div className={`h-2.5 w-2.5 rounded-full ${event.isServerUp ? 'bg-green-500' : 'bg-red-500'} mr-2`} />
+                    {event.isServerUp ? 'Online' : 'Offline'}
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
     </>
-  )
+  );
 }
