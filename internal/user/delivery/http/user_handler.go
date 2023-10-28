@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/RianNegreiros/vigilate/internal/domain"
+	"github.com/RianNegreiros/vigilate/internal/remote-server/delivery/http/middleware"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
@@ -30,8 +31,8 @@ func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
 	e.POST("/signup", handler.CreateUser)
 	e.POST("/login", handler.Login)
 	e.GET("/logout", handler.Logout)
-	e.PATCH("/notification-preferences", handler.UpdateNotificationPreferences)
-	e.GET("/users/:id", handler.GetByID)
+	e.PATCH("/notification-preferences", handler.UpdateNotificationPreferences, middleware.JWTMiddleware)
+	e.GET("/users/:id", handler.GetByID, middleware.JWTMiddleware)
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
