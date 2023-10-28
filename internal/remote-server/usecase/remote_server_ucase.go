@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/RianNegreiros/vigilate/internal/domain"
+	"github.com/google/uuid"
 	"github.com/pusher/pusher-http-go"
 )
 
@@ -72,7 +74,15 @@ func (s *remoteServerUsecase) GetByID(ctx context.Context, id int) (server domai
 	return server, err
 }
 
+var monitoringStarted sync.Map
+
 func (s *remoteServerUsecase) StartMonitoring(serverID int) error {
+	_, alreadyStarted := monitoringStarted.LoadOrStore(serverID, true)
+	if alreadyStarted {
+		log.Printf("Monitoring already started for server %d", serverID)
+		return nil
+	}
+
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
@@ -92,9 +102,8 @@ func (s *remoteServerUsecase) StartMonitoring(serverID int) error {
 
 		if isServerUp != prevStatus {
 			s.notifyStatusChange(serverID, isServerUp)
+			prevStatus = isServerUp
 		}
-
-		prevStatus = isServerUp
 	}
 
 	return nil
@@ -112,7 +121,9 @@ func (s *remoteServerUsecase) getServerInfo(serverID int) (domain.RemoteServer, 
 }
 
 func (s *remoteServerUsecase) notifyStatusChange(serverID int, isServerUp bool) {
-	s.pusherClient.Trigger(fmt.Sprintf("server-%d", serverID), "status-changed", map[string]bool{
+	eventID := uuid.New().String()
+	s.pusherClient.Trigger(fmt.Sprintf("server-%d", serverID), "status-changed", map[string]interface{}{
+		"id":         eventID,
 		"isServerUp": isServerUp,
 	})
 }
