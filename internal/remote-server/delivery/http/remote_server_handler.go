@@ -20,18 +20,17 @@ type ResponseError struct {
 }
 
 type RemoteServerHandler struct {
-	RemoteServerUsecase       domain.RemoteServerUsecase
-	RealTimeMonitoringUsecase domain.RealTimeMonitoringUsecase
+	RemoteServerUsecase domain.RemoteServerUsecase
 }
 
-func NewRemoteServerHandler(e *echo.Echo, r domain.RemoteServerUsecase, rt domain.RealTimeMonitoringUsecase) {
+func NewRemoteServerHandler(e *echo.Echo, r domain.RemoteServerUsecase) {
 	handler := &RemoteServerHandler{
-		RemoteServerUsecase:       r,
-		RealTimeMonitoringUsecase: rt,
+		RemoteServerUsecase: r,
 	}
 
 	e.POST("/remote-servers", handler.Create, middleware.JWTMiddleware)
 	e.GET("/remote-servers", handler.GetByUserID, middleware.JWTMiddleware)
+	e.GET("/remote-servers/:id", handler.GetByID, middleware.JWTMiddleware)
 	e.POST("/remote-servers/:id/start-monitoring", handler.StartMonitoring, middleware.JWTMiddleware)
 }
 
@@ -69,6 +68,20 @@ func (h *RemoteServerHandler) GetByUserID(c echo.Context) error {
 	return c.JSON(http.StatusOK, servers)
 }
 
+func (h *RemoteServerHandler) GetByID(c echo.Context) error {
+	serverID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
+	}
+
+	server, err := h.RemoteServerUsecase.GetByID(c.Request().Context(), serverID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, server)
+}
+
 func getUserIDFromJWTToken(cookieValue string) (int, error) {
 	token, err := jwt.Parse(cookieValue, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtSecret), nil
@@ -98,7 +111,7 @@ func (h *RemoteServerHandler) StartMonitoring(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
 	}
 
-	err = h.RealTimeMonitoringUsecase.StartMonitoring(serverID)
+	err = h.RemoteServerUsecase.StartMonitoring(serverID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
 	}
