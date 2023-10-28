@@ -1,13 +1,16 @@
 "use client"
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import NavBar from "../../components/Navbar";
 import { useEffect, useState } from "react";
-import pusher from "../../util/pusher";
 import { getServerById } from "../../util/api";
 import { Server } from "../../models";
+import { AxiosError } from "axios";
+import pusher from "@/app/util/pusher";
 
 export default function MonitorPage({ params }: { params: { serverId: string } }) {
+  const [isOnline, setIsOnline] = useState(false);
+  const [events, setEvents] = useState<any[]>([]);
   const [serverData, setServerData] = useState<Server>({
     id: "",
     name: "",
@@ -18,33 +21,41 @@ export default function MonitorPage({ params }: { params: { serverId: string } }
     user_id: "",
   });
   let pathname = usePathname();
-  const [isOnline, setIsOnline] = useState(false);
-  const [events, setEvents] = useState<any[]>([]);
+
+  const router = useRouter();
 
   useEffect(() => {
     async function getServerData() {
-      const serverData = await getServerById(params.serverId);
-      if (serverData !== null) {
-        setServerData(serverData);
-        setIsOnline(isOnline);
+      try {
+        const serverData = await getServerById(params.serverId);
+        if (serverData !== null) {
+          setServerData(serverData);
+          setIsOnline(isOnline);
+        }
+      } catch (error: AxiosError | any) {
+        if (error.response.status === 401) {
+          router.push("/login");
+        }
       }
     }
     getServerData();
 
+    pusher.unsubscribe(`server-${params.serverId}`);
+
     const channel = pusher.subscribe(`server-${params.serverId}`);
 
     channel.bind('status-changed', (data: any) => {
-      if (!events.some(event => event.id === data.id)) {
-        setIsOnline(data.isServerUp);
+      setIsOnline(data.isServerUp);
 
-        setEvents(prevEvents => [...prevEvents, data]);
-      }
+      console.log(data);
+
+      setEvents(prevEvents => [...prevEvents, data]);
     });
 
     return () => {
-      pusher.unsubscribe(params.serverId);
-    }
-  }, [params.serverId]); // Make sure to include params.serverId in the dependency array
+      pusher.unsubscribe(`server-${params.serverId}`);
+    };
+  }, [params.serverId]);
 
   return (
     <>
@@ -66,7 +77,7 @@ export default function MonitorPage({ params }: { params: { serverId: string } }
           </thead>
           <tbody>
             {events.map((event, index) => (
-              <tr key={event.id} className={`bg-white border-b ${event.isServerUp ? 'bg-green-50' : 'bg-red-50'}`}>
+              <tr key={`${event.id}-${index}`} className={`bg-white border-b ${event.isServerUp ? 'bg-green-50' : 'bg-red-50'}`}>
                 <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
                   <div className="pl-3">
                     <div className="text-base font-semibold">{serverData.name}</div>

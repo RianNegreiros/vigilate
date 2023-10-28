@@ -33,6 +33,8 @@ async function logout() {
   const response = await axios.get(`${API_URL}/logout`, {
     withCredentials: true,
   });
+
+  Cookies.remove('user');
   return response.data;
 }
 
@@ -45,7 +47,9 @@ function setCurrentUser(axiosResponse: any) {
 }
 
 async function getUserById(id: string) {
-  const response = await axios.get(`${API_URL}/users/${id}`);
+  const response = await axios.get(`${API_URL}/users/${id}`, {
+    withCredentials: true,
+  });
   return response.data;
 }
 

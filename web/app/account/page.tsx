@@ -1,11 +1,12 @@
 "use client"
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import NavBar from "../components/Navbar";
 import Cookies from "js-cookie";
 import { getUserById, updateEmailNotifications } from "../util/api";
 import { useEffect, useState } from "react";
 import { User } from "../models";
+import { AxiosError } from "axios";
 
 export default function AccountPage() {
   const [userData, setUserData] = useState<User>({
@@ -17,18 +18,25 @@ export default function AccountPage() {
     },
   });
   const pathname = usePathname();
+  const router = useRouter();
 
   const cookie = Cookies.get("user");
-
   const user = cookie ? JSON.parse(cookie) : null;
-
-  const { id } = user;
+  const id = user ? user.id : "";
 
   useEffect(() => {
-    const getUser = async () => {
-      const data = await getUserById(id);
-      setUserData(data);
-    };
+    async function getUser() {
+      try {
+        const userData = await getUserById(id);
+        if (userData !== null) {
+          setUserData(userData);
+        }
+      } catch (error: AxiosError | any) {
+        if (error.response.status === 401 || error.response.status === 404) {
+          router.push("/login");
+        }
+      }
+    }
     getUser();
   });
 
