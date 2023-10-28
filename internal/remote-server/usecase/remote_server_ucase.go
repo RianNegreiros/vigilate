@@ -73,7 +73,7 @@ func (s *remoteServerUsecase) GetByID(ctx context.Context, id int) (server domai
 }
 
 func (s *remoteServerUsecase) StartMonitoring(serverID int) error {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
 	// Get the initial server status
