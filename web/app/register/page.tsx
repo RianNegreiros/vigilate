@@ -2,8 +2,8 @@
 
 import { FormEvent, useState } from "react"
 import { RegisterData } from "../models"
-import { useRouter } from "next/navigation"
-import { register } from "../util/api"
+import { usePathname, useRouter } from "next/navigation"
+import { login, register } from "../util/api"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState<RegisterData>({
@@ -25,6 +25,7 @@ export default function RegisterPage() {
 
     try {
       await register(formData)
+      await login(formData)
       router.push("/dashboard")
     } catch (error) {
       console.error(error)
