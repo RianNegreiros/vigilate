@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import NavBar from "../components/Navbar";
 import Modal from "../components/Modal";
-import { usePathname } from "next/navigation";
-import { createServer, getServers } from "../util/api";
+import { usePathname, useRouter } from "next/navigation";
+import { createServer, getServers, startMonitoring } from "../util/api";
 import { CreateServer, Server } from "../models";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -13,6 +13,8 @@ export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [servers, setServers] = useState<Server[]>([]);
   let pathname = usePathname();
+
+  const router = useRouter();
 
   const openModal = () => {
     setIsModalOpen(false);
@@ -30,7 +32,9 @@ export default function DashboardPage() {
   useEffect(() => {
     async function getServersData() {
       const servers = await getServers();
-      setServers(servers);
+      if (servers !== null) {
+        setServers(servers);
+      }
     }
     getServersData();
   }, []);
@@ -45,6 +49,12 @@ export default function DashboardPage() {
     }
   }
 
+  const handleStartMonitoring = async (serverId: string) => {
+    const monitorURL = `/monitor/${serverId}`;
+    await startMonitoring(serverId);
+    router.push(monitorURL);
+  }
+
   return (
     <>
       <NavBar openModal={openModal} pathname={pathname} />
@@ -53,7 +63,7 @@ export default function DashboardPage() {
 
       <div className="min-h-screen max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {servers.map((server) => (
-          <div key={server.id} className="grid-card w-64 h-80 overflow-hidden"> {/* Adjust width and height as needed */}
+          <div key={server.id} className="grid-card w-64 h-80 overflow-hidden">
             <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:border-gray-300">
               <div className="flex justify-between mb-4 rounded-t sm:mb-5">
                 <div className="text-lg text-gray-900 md:text-xl dark:text-white">
@@ -105,7 +115,8 @@ export default function DashboardPage() {
               </ul>
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-3 sm:space-x-4">
-                  <button type="button"
+                  <Link href={`/monitor/${server.id}`} passHref
+                    onClick={() => handleStartMonitoring(server.id)}
                     className="text-white inline-flex items-center bg-primary-700 hover:bg-primary-900 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover-bg-primary-700 dark:focus:ring-primary-800 hover:shadow-lg transition-background duration-300">
                     <svg className="mr-1 -ml-1 w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="1em"
                       viewBox="0 0 512 512">
@@ -113,7 +124,7 @@ export default function DashboardPage() {
                         d="M32 32c17.7 0 32 14.3 32 32V400c0 8.8 7.2 16 16 16H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H80c-44.2 0-80-35.8-80-80V64C0 46.3 14.3 32 32 32zm96 96c0-17.7 14.3-32 32-32l192 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32zm32 64H288c17.7 0 32 14.3 32 32s-14.3 32-32 32H160c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 96H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H160c-17.7 0-32-14.3-32-32s14.3-32 32-32z" />
                     </svg>
                     Stat Monitoring
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

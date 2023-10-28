@@ -67,11 +67,24 @@ async function createServer(formData: CreateServer) {
   const cookie = Cookies.get("user");
   const { id } = JSON.parse(cookie || "{}");
   formData.user_id = Number(id);
-  console.log(formData);
   const response = await axios.post(`${API_URL}/remote-servers`, formData, {
     withCredentials: true,
   })
   return response.data;
 }
 
-export { register, login, logout, getUserById, updateEmailNotifications, getServers, createServer};
+async function getServerById(id: string) {
+  const response = await axios.get(`${API_URL}/remote-servers/${id}`, {
+    withCredentials: true,
+  })
+  return response.data;
+}
+
+async function startMonitoring(id: string) {
+  const response = await axios.post(`${API_URL}/remote-servers/${id}/start-monitoring`, null, {
+    withCredentials: true,
+  })
+  return response.data;
+}
+
+export { register, login, logout, getUserById, updateEmailNotifications, getServers, createServer, getServerById, startMonitoring};

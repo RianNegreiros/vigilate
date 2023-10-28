@@ -82,9 +82,8 @@ func main() {
 	_userHandler.NewUserHandler(e, uu)
 
 	rsr := _remoteServerRepo.NewPostgresRemoteServerRepo(dbConn.GetDB())
-	rsu := _remoteServerUsecase.NewRemoteServerUsecase(rsr, contextTimeout)
-	rtm := _remoteServerUsecase.NewRealTimeMonitoringUsecase(pusherClient, rsr, contextTimeout)
-	_remoteServerHandler.NewRemoteServerHandler(e, rsu, rtm)
+	rsu := _remoteServerUsecase.NewRemoteServerUsecase(rsr, contextTimeout, pusherClient)
+	_remoteServerHandler.NewRemoteServerHandler(e, rsu)
 
 	hcu := _remoteServerUsecase.NewHealthCheckUsecase(rsr, ur, contextTimeout, kafkaProducer)
 	hcu.StartHealthChecksScheduler()

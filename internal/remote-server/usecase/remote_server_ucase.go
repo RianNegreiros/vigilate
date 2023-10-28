@@ -2,22 +2,26 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/RianNegreiros/vigilate/internal/domain"
+	"github.com/pusher/pusher-http-go"
 )
 
 type remoteServerUsecase struct {
 	remoteServerRepo domain.RemoteServerRepository
 	contextTimeout   time.Duration
+	pusherClient     *pusher.Client
 }
 
-func NewRemoteServerUsecase(u domain.RemoteServerRepository, timeout time.Duration) domain.RemoteServerUsecase {
+func NewRemoteServerUsecase(u domain.RemoteServerRepository, contextTimeout time.Duration, pusherClient *pusher.Client) *remoteServerUsecase {
 	return &remoteServerUsecase{
 		remoteServerRepo: u,
-		contextTimeout:   timeout,
+		contextTimeout:   contextTimeout,
+		pusherClient:     pusherClient,
 	}
 }
 
@@ -57,6 +61,60 @@ func (s *remoteServerUsecase) GetByUserID(ctx context.Context, userID int) (serv
 	servers, err = s.remoteServerRepo.GetByUserID(ctx, userID)
 
 	return servers, err
+}
+
+func (s *remoteServerUsecase) GetByID(ctx context.Context, id int) (server domain.RemoteServer, err error) {
+	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
+	defer cancel()
+
+	server, err = s.remoteServerRepo.GetByID(ctx, id)
+
+	return server, err
+}
+
+func (s *remoteServerUsecase) StartMonitoring(serverID int) error {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	// Get the initial server status
+	server, err := s.getServerInfo(serverID)
+	if err != nil {
+		log.Printf("Error getting server info: %v\n", err)
+		return err
+	}
+
+	initialStatus := isServerUp(server.Address)
+
+	prevStatus := initialStatus
+
+	for range ticker.C {
+		isServerUp := isServerUp(server.Address)
+
+		if isServerUp != prevStatus {
+			s.notifyStatusChange(serverID, isServerUp)
+		}
+
+		prevStatus = isServerUp
+	}
+
+	return nil
+}
+
+func (s *remoteServerUsecase) getServerInfo(serverID int) (domain.RemoteServer, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
+	defer cancel()
+
+	server, err := s.remoteServerRepo.GetByID(ctx, serverID)
+	if err != nil {
+		log.Printf("Error getting server by ID: %v\n", err)
+	}
+	return server, err
+}
+
+func (s *remoteServerUsecase) notifyStatusChange(serverID int, isServerUp bool) {
+	s.pusherClient.Trigger(fmt.Sprintf("server-%d", serverID), "status-changed", map[string]bool{
+		"isServerUp": isServerUp,
+	})
 }
 
 func isServerUp(address string) bool {
