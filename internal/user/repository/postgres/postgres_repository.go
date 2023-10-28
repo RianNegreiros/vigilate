@@ -47,7 +47,7 @@ func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*d
 
 func (r *postgresUserRepo) GetUserByID(ctx context.Context, id int) (*domain.User, error) {
 	u := domain.User{}
-	query := "SELECT id, email, username, notification_preferences->>'email_enabled, created_at updated_at FROM users WHERE id = $1"
+	query := "SELECT id, email, username, notification_preferences->>'email_enabled', created_at, updated_at FROM users WHERE id = $1"
 	err := r.DB.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Email, &u.Username, &u.NotificationPreferences.EmailEnabled, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
