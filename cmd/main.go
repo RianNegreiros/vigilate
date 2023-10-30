@@ -85,7 +85,7 @@ func main() {
 	rsu := _remoteServerUsecase.NewRemoteServerUsecase(rsr, contextTimeout, pusherClient)
 	_remoteServerHandler.NewRemoteServerHandler(e, rsu)
 
-	hcu := _remoteServerUsecase.NewHealthCheckUsecase(rsr, ur, contextTimeout, kafkaProducer)
+	hcu := _remoteServerUsecase.NewHealthCheckUsecase(rsr, ur, contextTimeout, kafkaProducer, pusherClient)
 	hcu.StartHealthChecksScheduler()
 
 	var wg sync.WaitGroup

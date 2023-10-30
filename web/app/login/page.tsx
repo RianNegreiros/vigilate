@@ -24,15 +24,20 @@ export default function LoginPage() {
   }
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
+    event.preventDefault();
+  
+    const formData = new FormData(event.currentTarget);
+  
     try {
-      await login(loginData)
-      router.push("/dashboard")
+      await login({
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+      });
+      router.push("/dashboard");
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">

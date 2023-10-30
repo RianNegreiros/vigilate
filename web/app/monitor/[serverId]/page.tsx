@@ -74,7 +74,7 @@ export default function MonitorPage({ params }: { params: { serverId: string } }
             </tr>
           </thead>
           <tbody>
-            {events.map((event, index) => (
+            {events.slice().reverse().map((event, index) => (
               <tr key={`${event.id}-${index}`} className={`bg-white border-b ${event.isServerUp ? 'bg-green-50' : 'bg-red-50'}`}>
                 <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
                   <div className="pl-3">

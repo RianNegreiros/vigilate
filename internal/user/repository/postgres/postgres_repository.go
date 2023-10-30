@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 
 	"github.com/RianNegreiros/vigilate/internal/domain"
@@ -57,36 +58,46 @@ func (r *postgresUserRepo) GetUserByID(ctx context.Context, id int) (*domain.Use
 	return &u, nil
 }
 
-func (r *postgresUserRepo) UpdateNotificationPreferences(ctx context.Context, userID int, emailEnabled bool) error {
+func (r *postgresUserRepo) updateNotificationPreferences(ctx context.Context, userID int, preferences interface{}, notificationType string) error {
 	var notificationPreferencesJSON []byte
 	query := "SELECT notification_preferences FROM users WHERE id = $1"
 	err := r.DB.QueryRowContext(ctx, query, userID).Scan(&notificationPreferencesJSON)
 	if err != nil {
-		log.Println("Error fetching notification preferences: ", err)
+		log.Printf("Error fetching notification preferences for %s: %v\n", notificationType, err)
 		return err
 	}
 
 	var notificationPreferences domain.NotificationPreferences
 	err = json.Unmarshal(notificationPreferencesJSON, &notificationPreferences)
 	if err != nil {
-		log.Println("Error unmarshaling JSON: ", err)
+		log.Printf("Error unmarshaling JSON for %s: %v\n", notificationType, err)
 		return err
 	}
 
-	notificationPreferences.EmailEnabled = emailEnabled
+	switch notificationType {
+	case "email":
+		notificationPreferences.EmailEnabled = preferences.(bool)
+	default:
+		log.Printf("Unknown notification type: %s\n", notificationType)
+		return errors.New("unknown notification type")
+	}
 
 	updatedNotificationPreferencesJSON, err := json.Marshal(notificationPreferences)
 	if err != nil {
-		log.Println("Error marshaling JSON: ", err)
+		log.Printf("Error marshaling JSON for %s: %v\n", notificationType, err)
 		return err
 	}
 
 	updateQuery := "UPDATE users SET notification_preferences = $1 WHERE id = $2"
 	_, err = r.DB.ExecContext(ctx, updateQuery, updatedNotificationPreferencesJSON, userID)
 	if err != nil {
-		log.Println("Error updating notification preferences: ", err)
+		log.Printf("Error updating notification preferences for %s: %v\n", notificationType, err)
 		return err
 	}
 
 	return nil
+}
+
+func (r *postgresUserRepo) UpdateEmailNotificationPreferences(ctx context.Context, userID int, emailEnabled bool) error {
+	return r.updateNotificationPreferences(ctx, userID, emailEnabled, "email")
 }

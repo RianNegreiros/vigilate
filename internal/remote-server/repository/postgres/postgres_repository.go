@@ -114,7 +114,7 @@ func (r *postgresRemoteServerRepo) GetAll(ctx context.Context) ([]domain.RemoteS
 }
 
 func (r *postgresRemoteServerRepo) Update(ctx context.Context, remoteServer *domain.RemoteServer) (err error) {
-	query := `UPDATE remote_servers SET name=$1, address=$2, is_active=$3 WHERE id=$4`
+	query := `UPDATE remote_servers SET name=$1, address=$2, is_active=$3, last_check_time=$4, next_check_time=$5, last_notification_time=$6 WHERE id=$7`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	if err != nil {
 		log.Println("Error preparing statement: ", err)
@@ -122,7 +122,7 @@ func (r *postgresRemoteServerRepo) Update(ctx context.Context, remoteServer *dom
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.ID)
+	_, err = stmt.ExecContext(ctx, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime, remoteServer.LastNotificationTime, remoteServer.ID)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return

@@ -31,7 +31,7 @@ func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
 	e.POST("/signup", handler.CreateUser)
 	e.POST("/login", handler.Login)
 	e.GET("/logout", handler.Logout)
-	e.PATCH("/notification-preferences", handler.UpdateNotificationPreferences, middleware.JWTMiddleware)
+	e.PATCH("/email-notification-preferences", handler.UpdateEmailNotificationPreferences, middleware.JWTMiddleware)
 	e.GET("/users/:id", handler.GetByID, middleware.JWTMiddleware)
 }
 
@@ -77,7 +77,7 @@ func (h *UserHandler) Logout(c echo.Context) error {
 	return nil
 }
 
-func (h *UserHandler) UpdateNotificationPreferences(c echo.Context) error {
+func (h *UserHandler) UpdateEmailNotificationPreferences(c echo.Context) error {
 	cookie, err := c.Cookie("jwt")
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ResponseError{Message: "error getting cookie"})
@@ -92,7 +92,7 @@ func (h *UserHandler) UpdateNotificationPreferences(c echo.Context) error {
 		return nil
 	}
 
-	err = h.UserUsecase.UpdateNotificationPreferences(c.Request().Context(), userID)
+	err = h.UserUsecase.UpdateEmailNotificationPreferences(c.Request().Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
 		return nil

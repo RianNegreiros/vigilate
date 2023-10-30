@@ -26,16 +26,28 @@ export default function RegisterPage() {
   }
 
   const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
 
     try {
-      await register(formData)
-      await login(formData)
-      router.push("/dashboard")
+      await register({
+        username: formData.get("username") as string,
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+        confirmPassword: formData.get("confirmPassword") as string,
+      });
+
+      await login({
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+      });
+
+      router.push("/dashboard");
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">

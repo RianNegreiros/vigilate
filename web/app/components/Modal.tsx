@@ -12,8 +12,7 @@ interface ModalProps {
 }
 
 export default function Modal({ hideModal, closeModal, createServer }: ModalProps) {
-  const [formData, setFormData] = useState<CreateServer>({
-    user_id: 0,
+  const [serverData, setServerData] = useState<CreateServer>({
     name: "",
     address: ""
   })
@@ -21,17 +20,23 @@ export default function Modal({ hideModal, closeModal, createServer }: ModalProp
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const formData = new FormData(e.currentTarget);
+
     try {
-      createServer(formData);
-      closeModal();
+      createServer({
+        name: formData.get("name") as string,
+        address: formData.get("address") as string,
+      });
     } catch (error) {
       console.log(error);
+    } finally {
+      closeModal();
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
+    setServerData({
+      ...serverData,
       [e.target.id]: e.target.value
     })
   }
@@ -64,7 +69,7 @@ export default function Modal({ hideModal, closeModal, createServer }: ModalProp
                 id="name"
                 type="text"
                 name="name"
-                value={formData.name}
+                value={serverData.name}
                 onChange={handleChange}
                 placeholder="My Server"
                 required />
@@ -75,7 +80,7 @@ export default function Modal({ hideModal, closeModal, createServer }: ModalProp
                 id="address"
                 type="text"
                 name="address"
-                value={formData.address}
+                value={serverData.address}
                 onChange={handleChange}
                 placeholder="https://example.com"
                 required />

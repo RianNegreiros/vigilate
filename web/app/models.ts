@@ -30,7 +30,7 @@ export interface Server {
 }
 
 export interface CreateServer {
-  user_id: number
+  user_id?: number
   name: string
   address: string
 }
