@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { logout } from "../util/api";
 import Link from "next/link";
 import Cookies from "js-cookie";
+import Logo from "./Logo";
 
 interface NavBarProps {
   openModal?: () => void;
@@ -73,11 +74,7 @@ export default function NavBar({ openModal, pathname }: NavBarProps) {
             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
               <a href="/">
                 <div className="flex flex-shrink-0 items-center">
-                  <svg className="h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor" viewBox="0 0 20 14">
-                    <path
-                      d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
-                  </svg>
+                  <Logo />
                   <span className="text-white text-2xl font-bold ml-2">Vigilate</span>
                 </div>
               </a>

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
+import Logo from './Logo';
 
 export default function Hero() {
   const [userLoggedIn, setUserLoggedIn] = useState(false);
@@ -20,11 +21,7 @@ export default function Hero() {
       <nav className="bg-white border-gray-200 dark:bg-gray-900">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
           <Link href="https://github.com/RianNegreiros/vigilate" className="flex items-center">
-            <svg className="h-6 mr-1 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor" viewBox="0 0 20 14">
-              <path
-                d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
-            </svg>
+            <Logo />
             <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Vigilate</span>
           </Link>
           <div className="flex items-center">
@@ -71,11 +68,7 @@ export default function Hero() {
         <div className="w-full max-w-screen-xl mx-auto p-4 md:py-8">
           <div className="sm:flex sm:items-center sm:justify-between">
             <a href="https://github.com/RianNegreiros/vigilate" className="flex items-center mb-4 sm:mb-0">
-              <svg className="h-6 mr-3 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor" viewBox="0 0 20 14">
-                <path
-                  d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
-              </svg>
+              <Logo />
               <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Vigilate</span>
             </a>
             <ul className="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">

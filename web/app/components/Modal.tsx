@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { CreateServer } from "../models";
-import { createServer } from "../util/api";
+import Input from "./Input";
+import Label from "./Label";
 
 interface ModalProps {
   hideModal: boolean;
@@ -58,20 +59,26 @@ export default function Modal({ hideModal, closeModal, createServer }: ModalProp
 
           <form className="p-6 space-y-6" onSubmit={handleSubmit}>
             <div className="mb-6">
-              <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-              <input type="text" id="name"
+              <Label htmlFor="name" text="Server Name" />
+              <Input
+                id="name"
+                type="text"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Personal Website" required />
+                placeholder="My Server"
+                required />
             </div>
             <div className="mb-6">
-              <label htmlFor="address" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Server Address
-              </label>
-              <input type="text" id="address"
+              <Label htmlFor="address" text="Server Address" />
+              <Input
+                id="address"
+                type="text"
+                name="address"
+                value={formData.address}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="https://personalwebsite.com" required />
+                placeholder="https://example.com"
+                required />
             </div>
             <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
               <button data-modal-hide="default-modal" type="submit"
