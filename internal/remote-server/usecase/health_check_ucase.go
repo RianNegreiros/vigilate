@@ -46,11 +46,6 @@ func (hc *healthCheckUsecase) performServerHealthChecks() {
 	}
 
 	for _, server := range servers {
-		// Skip servers that are not active
-		if !server.IsActive {
-			continue
-		}
-
 		// Skip servers that are not due for a check
 		if server.NextCheckTime.After(time.Now()) {
 			continue
@@ -66,18 +61,17 @@ func (hc *healthCheckUsecase) performServerHealthChecks() {
 }
 
 func (hc *healthCheckUsecase) checkServerStatus(ctx context.Context, server domain.RemoteServer) {
-	prevState, exists := hc.serverStatus[server.Address]
+	isUp := isServerUp(server.Address)
+	hc.serverStatus[server.Address] = isUp
+
 	err := hc.updateServerStatus(ctx, server)
 	if err != nil {
-		log.Printf("Error updating server status: %v", err)
+		log.Printf("Error updating server: %v", err)
 		return
 	}
 
-	if !exists || prevState != server.IsActive {
-		hc.serverStatus[server.Address] = server.IsActive
-		if !server.IsActive {
-			hc.sendNotifications(server)
-		}
+	if !isUp {
+		hc.sendNotifications(server)
 	}
 }
 
@@ -85,6 +79,7 @@ func (hc *healthCheckUsecase) updateServerStatus(ctx context.Context, server dom
 	server.IsActive = isServerUp(server.Address)
 	server.LastCheckTime = time.Now()
 	server.NextCheckTime = time.Now().Add(time.Minute * 5)
+	server.LastNotificationTime = time.Now()
 	err := hc.remoteServerRepo.Update(ctx, &server)
 	if err != nil {
 		return err
