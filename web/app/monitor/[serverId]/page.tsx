@@ -47,15 +47,13 @@ export default function MonitorPage({ params }: { params: { serverId: string } }
     channel.bind('status-changed', (data: any) => {
       setIsOnline(data.isServerUp);
 
-      console.log(data);
-
       setEvents(prevEvents => [...prevEvents, data]);
     });
 
     return () => {
       pusher.unsubscribe(`server-${params.serverId}`);
     };
-  }, [params.serverId]);
+  }, [params.serverId, router, isOnline]);
 
   return (
     <>

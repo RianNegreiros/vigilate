@@ -72,7 +72,7 @@ export default function DashboardPage() {
     }
     getServersData();
     setIsLoading(false);
-  }, []);
+  }, [router]);
 
   const handleCreateServer = async (formData: CreateServer) => {
     try {
