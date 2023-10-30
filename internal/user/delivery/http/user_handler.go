@@ -111,7 +111,7 @@ func writeCookie(c echo.Context, name, value string, maxAge int) {
 	cookie.Path = "/"
 	cookie.Domain = domain
 	cookie.HttpOnly = false
-	cookie.SameSite = http.SameSiteLaxMode
+	cookie.SameSite = http.SameSiteStrictMode
 	c.SetCookie(cookie)
 }
 
