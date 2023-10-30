@@ -17,7 +17,6 @@ type User struct {
 
 type NotificationPreferences struct {
 	EmailEnabled bool `json:"email_enabled" db:"email_enabled"`
-	PushEnabled  bool `json:"push_enabled" db:"push_enabled"`
 }
 
 type CreateUserRequest struct {
@@ -50,13 +49,11 @@ type UserRepository interface {
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByID(ctx context.Context, id int) (*User, error)
 	UpdateEmailNotificationPreferences(ctx context.Context, userID int, emailEnabled bool) error
-	UpdatePushNotificationPreferences(ctx context.Context, userID int, pushEnabled bool) error
 }
 
 type UserUsecase interface {
 	CreateUser(ctx context.Context, req *CreateUserRequest) (*CreateUserResponse, error)
 	Login(ctx context.Context, req *LoginUserRequest) (*LoginUserResponse, error)
 	UpdateEmailNotificationPreferences(ctx context.Context, userID int) error
-	UpdatePushNotificationPreferences(ctx context.Context, userID int) error
 	GetByID(ctx context.Context, userID int) (*User, error)
 }

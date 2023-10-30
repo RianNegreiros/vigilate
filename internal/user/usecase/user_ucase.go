@@ -141,27 +141,6 @@ func (s *userUsecase) UpdateEmailNotificationPreferences(ctx context.Context, us
 	return nil
 }
 
-func (s *userUsecase) UpdatePushNotificationPreferences(ctx context.Context, userID int) error {
-	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
-	defer cancel()
-
-	user, err := s.userRepo.GetUserByID(ctx, userID)
-	if err != nil {
-		log.Println("Error getting user: ", err)
-		return err
-	}
-
-	pushEnabled := !user.NotificationPreferences.PushEnabled
-
-	err = s.userRepo.UpdatePushNotificationPreferences(ctx, userID, pushEnabled)
-	if err != nil {
-		log.Println("Error updating notification preferences: ", err)
-		return err
-	}
-
-	return nil
-}
-
 func (s *userUsecase) GetByID(ctx context.Context, userID int) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()

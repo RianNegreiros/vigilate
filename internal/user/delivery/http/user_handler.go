@@ -32,7 +32,6 @@ func NewUserHandler(e *echo.Echo, us domain.UserUsecase) {
 	e.POST("/login", handler.Login)
 	e.GET("/logout", handler.Logout)
 	e.PATCH("/email-notification-preferences", handler.UpdateEmailNotificationPreferences, middleware.JWTMiddleware)
-	e.PATCH("/push-notification-preferences", handler.UpdatePushNotificationPreferences, middleware.JWTMiddleware)
 	e.GET("/users/:id", handler.GetByID, middleware.JWTMiddleware)
 }
 
@@ -94,31 +93,6 @@ func (h *UserHandler) UpdateEmailNotificationPreferences(c echo.Context) error {
 	}
 
 	err = h.UserUsecase.UpdateEmailNotificationPreferences(c.Request().Context(), userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
-		return nil
-	}
-
-	c.JSON(http.StatusOK, echo.Map{"message": "notification preferences updated"})
-	return nil
-}
-
-func (h *UserHandler) UpdatePushNotificationPreferences(c echo.Context) error {
-	cookie, err := c.Cookie("jwt")
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, ResponseError{Message: "error getting cookie"})
-		log.Println("Error getting cookie: ", err)
-		return nil
-	}
-
-	userID, err := getUserIDFromJWTToken(cookie.Value)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, ResponseError{Message: "invalid token"})
-		log.Println("Error getting user ID from JWT token: ", err)
-		return nil
-	}
-
-	err = h.UserUsecase.UpdatePushNotificationPreferences(c.Request().Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
 		return nil

@@ -48,8 +48,8 @@ func (r *postgresUserRepo) GetUserByEmail(ctx context.Context, email string) (*d
 
 func (r *postgresUserRepo) GetUserByID(ctx context.Context, id int) (*domain.User, error) {
 	u := domain.User{}
-	query := "SELECT id, email, username, notification_preferences->>'email_enabled', notification_preferences->>'push_enabled', created_at, updated_at FROM users WHERE id = $1"
-	err := r.DB.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Email, &u.Username, &u.NotificationPreferences.EmailEnabled, &u.NotificationPreferences.PushEnabled, &u.CreatedAt, &u.UpdatedAt)
+	query := "SELECT id, email, username, notification_preferences->>'email_enabled', created_at, updated_at FROM users WHERE id = $1"
+	err := r.DB.QueryRowContext(ctx, query, id).Scan(&u.ID, &u.Email, &u.Username, &u.NotificationPreferences.EmailEnabled, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return &domain.User{}, err
@@ -77,8 +77,6 @@ func (r *postgresUserRepo) updateNotificationPreferences(ctx context.Context, us
 	switch notificationType {
 	case "email":
 		notificationPreferences.EmailEnabled = preferences.(bool)
-	case "push":
-		notificationPreferences.PushEnabled = preferences.(bool)
 	default:
 		log.Printf("Unknown notification type: %s\n", notificationType)
 		return errors.New("unknown notification type")
@@ -102,8 +100,4 @@ func (r *postgresUserRepo) updateNotificationPreferences(ctx context.Context, us
 
 func (r *postgresUserRepo) UpdateEmailNotificationPreferences(ctx context.Context, userID int, emailEnabled bool) error {
 	return r.updateNotificationPreferences(ctx, userID, emailEnabled, "email")
-}
-
-func (r *postgresUserRepo) UpdatePushNotificationPreferences(ctx context.Context, userID int, pushEnabled bool) error {
-	return r.updateNotificationPreferences(ctx, userID, pushEnabled, "push")
 }
