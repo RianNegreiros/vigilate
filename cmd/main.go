@@ -31,11 +31,6 @@ func main() {
 		log.Fatal("Error connecting to database", err)
 	}
 
-	err = dbConn.Ping()
-	if err != nil {
-		log.Fatal("Error pinging database", err)
-	}
-
 	if err := database.Migrate(dbConn.GetDB()); err != nil {
 		log.Fatal("Error migrating database", err)
 	}

@@ -19,6 +19,8 @@ func NewDatabase() (*Database, error) {
 		return nil, err
 	}
 
+	db.SetMaxOpenConns(5)
+
 	return &Database{db: db}, nil
 }
 
