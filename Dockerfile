@@ -14,14 +14,17 @@ COPY . .
 # Build the Go application with compiler optimizations.
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /app/vigilate ./cmd
 
-# Use a minimal base image to reduce the image size.
+# Create a minimal base image to reduce the image size.
 FROM alpine:3.14
 
 # Set the working directory inside the container.
 WORKDIR /app
 
-# Copy only the necessary files from the build stage.
+# Copy the binary from the build stage.
 COPY --from=build /app/vigilate .
+
+# Copy the migration files into the container.
+COPY internal/database/migrations /app/internal/database/migrations
 
 # Expose the port your application will listen on.
 EXPOSE 8080

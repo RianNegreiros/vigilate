@@ -6,7 +6,7 @@ services:
     ports:
       - '8080:8080'
     volumes:
-      - .env.docker:/app/.env
+      - .env:/app/.env
     depends_on:
       - postgres
       - kafka
