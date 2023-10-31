@@ -19,4 +19,6 @@ var (
 	ErrInvalidEmail = errors.New("models: invalid email")
 	// ErrInvalidPassword invalid password error
 	ErrInvalidPassword = errors.New("models: invalid password")
+	// ErrNotFound not found error
+	ErrNotFound = errors.New("models: resource not found")
 )

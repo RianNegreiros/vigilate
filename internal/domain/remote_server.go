@@ -22,6 +22,12 @@ type CreateRemoteServer struct {
 	Address string `json:"address"`
 }
 
+type UpdateRemoteServer struct {
+	ID      int64  `json:"id"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
+}
+
 type RemoteServerRepository interface {
 	Create(ctx context.Context, server *RemoteServer) error
 	Exists(ctx context.Context, address string) (bool, error)
@@ -29,6 +35,7 @@ type RemoteServerRepository interface {
 	GetByUserID(ctx context.Context, userID int) ([]RemoteServer, error)
 	GetAll(ctx context.Context) ([]RemoteServer, error)
 	Update(ctx context.Context, server *RemoteServer) error
+	UpdateNameAddress(ctx context.Context, server *UpdateRemoteServer) (*RemoteServer, error)
 	Delete(ctx context.Context, id int) error
 }
 
@@ -37,5 +44,6 @@ type RemoteServerUsecase interface {
 	GetByUserID(ctx context.Context, userID int) ([]RemoteServer, error)
 	GetByID(ctx context.Context, id int) (RemoteServer, error)
 	StartMonitoring(serverID int) error
+	UpdateNameAddress(ctx context.Context, server *UpdateRemoteServer) (*RemoteServer, error)
 	Delete(ctx context.Context, id int) error
 }

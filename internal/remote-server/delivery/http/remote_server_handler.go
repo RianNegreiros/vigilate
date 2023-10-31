@@ -32,6 +32,7 @@ func NewRemoteServerHandler(e *echo.Echo, r domain.RemoteServerUsecase) {
 	e.GET("/remote-servers", handler.GetByUserID, middleware.JWTMiddleware)
 	e.GET("/remote-servers/:id", handler.GetByID, middleware.JWTMiddleware)
 	e.POST("/remote-servers/:id/start-monitoring", handler.StartMonitoring, middleware.JWTMiddleware)
+	e.PUT("/remote-servers/:id", handler.UpdateNameAddress, middleware.JWTMiddleware)
 	e.DELETE("/remote-servers/:id", handler.Delete, middleware.JWTMiddleware)
 }
 
@@ -95,6 +96,28 @@ func (h *RemoteServerHandler) StartMonitoring(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, ResponseError{Message: "Monitoring started successfully"})
+}
+
+func (h *RemoteServerHandler) UpdateNameAddress(c echo.Context) error {
+	serverID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
+	}
+
+	var updateRemoteServer domain.UpdateRemoteServer
+	err = c.Bind(&updateRemoteServer)
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: err.Error()})
+	}
+
+	updateRemoteServer.ID = int64(serverID)
+
+	server, err := h.RemoteServerUsecase.UpdateNameAddress(c.Request().Context(), &updateRemoteServer)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, server)
 }
 
 func (h *RemoteServerHandler) Delete(c echo.Context) error {

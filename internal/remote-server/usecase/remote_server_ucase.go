@@ -109,6 +109,30 @@ func (s *remoteServerUsecase) StartMonitoring(serverID int) error {
 	return nil
 }
 
+func (h *remoteServerUsecase) UpdateNameAddress(ctx context.Context, req *domain.UpdateRemoteServer) (server *domain.RemoteServer, err error) {
+	ctx, cancel := context.WithTimeout(ctx, h.contextTimeout)
+	defer cancel()
+
+	existingServer, err := h.remoteServerRepo.GetByID(ctx, int(req.ID))
+	if err != nil {
+		return nil, err
+	}
+
+	if existingServer.Address != req.Address {
+		exists, err := h.remoteServerRepo.Exists(ctx, req.Address)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, domain.ErrDuplicateAddress
+		}
+	}
+
+	server, err = h.remoteServerRepo.UpdateNameAddress(ctx, req)
+
+	return server, err
+}
+
 func (s *remoteServerUsecase) Delete(ctx context.Context, id int) (err error) {
 	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
 	defer cancel()
