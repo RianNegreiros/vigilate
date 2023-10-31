@@ -1,20 +1,22 @@
 "use client"
 
 import { useState } from "react";
-import { CreateServer } from "../models";
+import { UpdateServer } from "../models";
 import Input from "./Input";
 import Label from "./Label";
 
 interface ModalProps {
   hideModal: boolean;
   closeModal: () => void;
-  createServer: (server: CreateServer) => void;
+  updateServer: (server: UpdateServer) => void;
+  server: UpdateServer;
 }
 
-export default function Modal({ hideModal, closeModal, createServer }: ModalProps) {
-  const [serverData, setServerData] = useState<CreateServer>({
-    name: "",
-    address: ""
+export default function UpdateServerModal({ hideModal, closeModal, updateServer, server }: ModalProps) {
+  const [serverData, setServerData] = useState<UpdateServer>({
+    id: server.id,
+    name: server.name,
+    address: server.address
   })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,7 +25,7 @@ export default function Modal({ hideModal, closeModal, createServer }: ModalProp
     const formData = new FormData(e.currentTarget);
 
     try {
-      createServer({
+      updateServer({
         name: formData.get("name") as string,
         address: formData.get("address") as string,
       });
@@ -48,7 +50,7 @@ export default function Modal({ hideModal, closeModal, createServer }: ModalProp
         <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
           <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Create a new server
+              Update server
             </h3>
             <button type="button"
               onClick={closeModal}
@@ -88,7 +90,7 @@ export default function Modal({ hideModal, closeModal, createServer }: ModalProp
             <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
               <button data-modal-hide="default-modal" type="submit"
                 className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                Create
+                Update
               </button>
               <button data-modal-hide="default-modal" type="button"
                 onClick={closeModal}

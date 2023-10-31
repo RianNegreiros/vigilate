@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CreateServer, LoginData, RegisterData } from '../models';
+import { CreateServer, LoginData, RegisterData, UpdateServer } from '../models';
 import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -77,6 +77,13 @@ async function createServer(formData: CreateServer) {
   return response.data;
 }
 
+async function updateServer(formData: UpdateServer, id: string) {
+  const response = await axios.put(`${API_URL}/remote-servers/${id}`, formData, {
+    withCredentials: true,
+  })
+  return response.data;
+}
+
 async function getServerById(id: string) {
   const response = await axios.get(`${API_URL}/remote-servers/${id}`, {
     withCredentials: true,
@@ -91,4 +98,4 @@ async function startMonitoring(id: string) {
   return response.data;
 }
 
-export { register, login, logout, getUserById, updateEmailNotifications, getServers, createServer, getServerById, startMonitoring};
+export { register, login, logout, getUserById, updateEmailNotifications, getServers, createServer, getServerById, startMonitoring, updateServer};
