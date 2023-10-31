@@ -84,6 +84,14 @@ async function updateServer(formData: UpdateServer, id: string) {
   return response.data;
 }
 
+async function deleteServer(id: string) {
+  const response = await axios.delete(`${API_URL}/remote-servers/${id}`, {
+    withCredentials: true,
+  })
+  return response.data;
+}
+
+
 async function getServerById(id: string) {
   const response = await axios.get(`${API_URL}/remote-servers/${id}`, {
     withCredentials: true,
@@ -98,4 +106,4 @@ async function startMonitoring(id: string) {
   return response.data;
 }
 
-export { register, login, logout, getUserById, updateEmailNotifications, getServers, createServer, getServerById, startMonitoring, updateServer};
+export { register, login, logout, getUserById, updateEmailNotifications, getServers, createServer, getServerById, startMonitoring, updateServer, deleteServer};
