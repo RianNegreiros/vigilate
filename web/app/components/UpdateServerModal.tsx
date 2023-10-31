@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react";
-import { UpdateServer } from "../models";
+import { Server, UpdateServer } from "../models";
 import Input from "./Input";
 import Label from "./Label";
 
 interface ModalProps {
   hideModal: boolean;
   closeModal: () => void;
-  updateServer: (server: UpdateServer) => void;
-  server: UpdateServer;
+  updateServer: (server: UpdateServer, id:string) => void;
+  server: Server;
 }
 
 export default function UpdateServerModal({ hideModal, closeModal, updateServer, server }: ModalProps) {
@@ -28,7 +28,7 @@ export default function UpdateServerModal({ hideModal, closeModal, updateServer,
       updateServer({
         name: formData.get("name") as string,
         address: formData.get("address") as string,
-      });
+      }, server.id);
     } catch (error) {
       console.log(error);
     } finally {

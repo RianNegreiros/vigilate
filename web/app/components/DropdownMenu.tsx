@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react";
-import { deleteServer } from "../util/api";
 
 interface DropdownMenuProps {
   openModal?: () => void;
-  server?: any;
+  deleteServer: (id: string) => void;
+  server: any;
 }
 
-export default function DropdownMenu({ openModal, server }: DropdownMenuProps) {
+export default function DropdownMenu({ openModal, server, deleteServer }: DropdownMenuProps) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdown = useRef<HTMLDivElement>(null);
 
@@ -29,14 +29,6 @@ export default function DropdownMenu({ openModal, server }: DropdownMenuProps) {
     setShowDropdown(!showDropdown);
     if (dropdown.current) {
       dropdown.current.classList.toggle("hidden");
-    }
-  }
-
-  const handleDeleteServer = () => {
-    try {
-      deleteServer(server.id);
-    } catch (error) {
-      console.log(error);
     }
   }
 
@@ -65,7 +57,7 @@ export default function DropdownMenu({ openModal, server }: DropdownMenuProps) {
           </li>
         </ul>
         <div className="py-2">
-          <button onClick={handleDeleteServer} className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-100 dark:hover:bg-red-600 dark:text-red-200 dark:hover:text-white">Delete</button>
+          <button onClick={() => deleteServer(server.id)} className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-100 dark:hover:bg-red-600 dark:text-red-200 dark:hover:text-white">Delete</button>
         </div>
       </div>
     </>

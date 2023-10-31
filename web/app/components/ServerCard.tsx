@@ -11,9 +11,11 @@ import DropdownMenu from "./DropdownMenu";
 
 interface ServerCardProps {
   server: Server;
+  deleteServer: (id: string) => void;
+  updateServer: (server: UpdateServer, id:string) => void;
 }
 
-export default function ServerCard({ server }: ServerCardProps) {
+export default function ServerCard({ server, deleteServer, updateServer }: ServerCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const router = useRouter();
 
@@ -36,19 +38,11 @@ export default function ServerCard({ server }: ServerCardProps) {
     setIsModalOpen(true);
   };
 
-  const handleUpdateServer = async (formData: UpdateServer) => {
-    try {
-      await updateServer(formData, server.id);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   return (
     <>
-      <UpdateServerModal key={server.id} hideModal={isModalOpen} closeModal={closeModal} updateServer={handleUpdateServer} server={server} />
+      <UpdateServerModal key={server.id} hideModal={isModalOpen} closeModal={closeModal} updateServer={updateServer} server={server} />
       <div className="grid-card w-64 h-80 overflow-hidden relative">
-        <DropdownMenu openModal={openModal} server={server} />
+        <DropdownMenu openModal={openModal} server={server} deleteServer={deleteServer} />
         <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:border-gray-300">
           <div className="flex justify-between mb-4 rounded-t sm:mb-5">
             <div className="text-lg text-gray-900 md:text-xl dark:text-white">
