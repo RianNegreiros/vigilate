@@ -42,13 +42,13 @@ func (s *remoteServerUsecase) Create(ctx context.Context, req *domain.CreateRemo
 	}
 
 	remoteServer := &domain.RemoteServer{
-		UserID:               req.UserID,
-		Name:                 req.Name,
-		Address:              req.Address,
-		IsActive:             isServerUp(req.Address),
-		LastCheckTime:        time.Now(),
-		NextCheckTime:        time.Now().Add(time.Minute * 5),
-		LastNotificationTime: time.Time{},
+		UserID:        req.UserID,
+		Name:          req.Name,
+		Address:       req.Address,
+		IsActive:      isServerUp(req.Address),
+		LastCheckTime: time.Now(),
+		NextCheckTime: time.Now().Add(time.Minute * 5),
+		Notified:      false,
 	}
 
 	err = s.remoteServerRepo.Create(ctx, remoteServer)

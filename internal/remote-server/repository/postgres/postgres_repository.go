@@ -20,7 +20,7 @@ func NewPostgresRemoteServerRepo(db *sql.DB) domain.RemoteServerRepository {
 
 func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *domain.RemoteServer) (err error) {
 	var lastInsertId int
-	query := `INSERT INTO remote_servers (user_id, name, address, is_active, last_check_time, next_check_time, last_notification_time) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+	query := `INSERT INTO remote_servers (user_id, name, address, is_active, last_check_time, next_check_time, notified) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	if err != nil {
 		log.Println("Error preparing statement: ", err)
@@ -28,7 +28,7 @@ func (r *postgresRemoteServerRepo) Create(ctx context.Context, remoteServer *dom
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime, remoteServer.LastNotificationTime)
+	_, err = stmt.ExecContext(ctx, remoteServer.UserID, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime, remoteServer.Notified)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return
@@ -114,7 +114,7 @@ func (r *postgresRemoteServerRepo) GetAll(ctx context.Context) ([]domain.RemoteS
 }
 
 func (r *postgresRemoteServerRepo) Update(ctx context.Context, remoteServer *domain.RemoteServer) (err error) {
-	query := `UPDATE remote_servers SET name=$1, address=$2, is_active=$3, last_check_time=$4, next_check_time=$5, last_notification_time=$6 WHERE id=$7`
+	query := `UPDATE remote_servers SET name=$1, address=$2, is_active=$3, last_check_time=$4, next_check_time=$5, notified=$6 WHERE id=$7`
 	stmt, err := r.DB.PrepareContext(ctx, query)
 	if err != nil {
 		log.Println("Error preparing statement: ", err)
@@ -122,7 +122,7 @@ func (r *postgresRemoteServerRepo) Update(ctx context.Context, remoteServer *dom
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime, remoteServer.LastNotificationTime, remoteServer.ID)
+	_, err = stmt.ExecContext(ctx, remoteServer.Name, remoteServer.Address, remoteServer.IsActive, remoteServer.LastCheckTime, remoteServer.NextCheckTime, remoteServer.Notified, remoteServer.ID)
 	if err != nil {
 		log.Println("Error executing statement: ", err)
 		return
