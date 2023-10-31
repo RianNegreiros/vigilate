@@ -67,22 +67,26 @@ func (hc *healthCheckUsecase) checkServerStatus(ctx context.Context, server doma
 	isUp := isServerUp(server.Address)
 	hc.serverStatus[server.Address] = isUp
 
-	err := hc.updateServerStatus(ctx, server)
+	err := hc.updateServerStatus(ctx, server, isUp)
 	if err != nil {
 		log.Printf("Error updating server: %v", err)
 		return
 	}
 
-	if !isUp {
+	if !isUp && !server.Notified {
 		hc.sendNotifications(server)
 	}
 }
 
-func (hc *healthCheckUsecase) updateServerStatus(ctx context.Context, server domain.RemoteServer) error {
-	server.IsActive = isServerUp(server.Address)
+func (hc *healthCheckUsecase) updateServerStatus(ctx context.Context, server domain.RemoteServer, isUp bool) error {
+	server.IsActive = isUp
 	server.LastCheckTime = time.Now()
 	server.NextCheckTime = time.Now().Add(time.Minute * 5)
-	server.LastNotificationTime = time.Now()
+	if !isUp && !server.Notified {
+		server.Notified = true
+	} else if isUp {
+		server.Notified = false
+	}
 	err := hc.remoteServerRepo.Update(ctx, &server)
 	if err != nil {
 		return err
@@ -107,14 +111,14 @@ func (hc *healthCheckUsecase) sendNotifications(server domain.RemoteServer) {
 	hc.kafkaProducer.SendHealthCheckResultToKafka(message, topic)
 
 	if user.NotificationPreferences.EmailEnabled {
-		err = email.ResendEmailSender(user.Email, server.Name, server.Address, timestamp)
+		err = email.SendEmail(user.Email, server.Name, server.Address, timestamp)
 
 		if err != nil {
 			log.Printf("Error sending email: %v", err)
 			return
 		}
 
-		server.LastNotificationTime = time.Now()
+		server.Notified = true
 		err = hc.remoteServerRepo.Update(ctx, &server)
 		if err != nil {
 			log.Printf("Error updating server: %v", err)
