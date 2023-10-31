@@ -143,3 +143,15 @@ func (r *postgresRemoteServerRepo) GetByID(ctx context.Context, id int) (domain.
 
 	return server, nil
 }
+
+func (r *postgresRemoteServerRepo) Delete(ctx context.Context, id int) error {
+	query := "DELETE FROM remote_servers WHERE id=$1"
+	stmt, err := r.DB.PrepareContext(ctx, query)
+	if err != nil {
+		log.Println("Error preparing statement: ", err)
+	}
+
+	_, err = stmt.ExecContext(ctx, id)
+
+	return err
+}

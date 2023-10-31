@@ -32,6 +32,7 @@ func NewRemoteServerHandler(e *echo.Echo, r domain.RemoteServerUsecase) {
 	e.GET("/remote-servers", handler.GetByUserID, middleware.JWTMiddleware)
 	e.GET("/remote-servers/:id", handler.GetByID, middleware.JWTMiddleware)
 	e.POST("/remote-servers/:id/start-monitoring", handler.StartMonitoring, middleware.JWTMiddleware)
+	e.DELETE("/remote-servers/:id", handler.Delete, middleware.JWTMiddleware)
 }
 
 func (h *RemoteServerHandler) Create(c echo.Context) (err error) {
@@ -82,6 +83,34 @@ func (h *RemoteServerHandler) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, server)
 }
 
+func (h *RemoteServerHandler) StartMonitoring(c echo.Context) error {
+	serverID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
+	}
+
+	err = h.RemoteServerUsecase.StartMonitoring(serverID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, ResponseError{Message: "Monitoring started successfully"})
+}
+
+func (h *RemoteServerHandler) Delete(c echo.Context) error {
+	serverID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
+	}
+
+	err = h.RemoteServerUsecase.Delete(c.Request().Context(), serverID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, ResponseError{Message: "Server deleted successfully"})
+}
+
 func getUserIDFromJWTToken(cookieValue string) (int, error) {
 	token, err := jwt.Parse(cookieValue, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtSecret), nil
@@ -103,18 +132,4 @@ func getUserIDFromJWTToken(cookieValue string) (int, error) {
 	}
 
 	return 0, errors.New("ID claim not found in JWT token")
-}
-
-func (h *RemoteServerHandler) StartMonitoring(c echo.Context) error {
-	serverID, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, ResponseError{Message: err.Error()})
-	}
-
-	err = h.RemoteServerUsecase.StartMonitoring(serverID)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, ResponseError{Message: err.Error()})
-	}
-
-	return c.JSON(http.StatusOK, ResponseError{Message: "Monitoring started successfully"})
 }

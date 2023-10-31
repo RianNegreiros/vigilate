@@ -109,6 +109,15 @@ func (s *remoteServerUsecase) StartMonitoring(serverID int) error {
 	return nil
 }
 
+func (s *remoteServerUsecase) Delete(ctx context.Context, id int) (err error) {
+	ctx, cancel := context.WithTimeout(ctx, s.contextTimeout)
+	defer cancel()
+
+	err = s.remoteServerRepo.Delete(ctx, id)
+
+	return
+}
+
 func (s *remoteServerUsecase) getServerInfo(serverID int) (domain.RemoteServer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), s.contextTimeout)
 	defer cancel()
