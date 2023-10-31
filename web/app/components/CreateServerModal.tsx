@@ -11,7 +11,7 @@ interface ModalProps {
   createServer: (server: CreateServer) => void;
 }
 
-export default function Modal({ hideModal, closeModal, createServer }: ModalProps) {
+export default function CreateServerModal({ hideModal, closeModal, createServer }: ModalProps) {
   const [serverData, setServerData] = useState<CreateServer>({
     name: "",
     address: ""

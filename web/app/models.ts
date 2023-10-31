@@ -34,3 +34,9 @@ export interface CreateServer {
   name: string
   address: string
 }
+
+export interface UpdateServer {
+  id?: string
+  name: string
+  address: string
+}
