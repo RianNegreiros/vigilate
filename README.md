@@ -1,7 +1,6 @@
 # Vigilate
 
-Real time web services monitoring
-
+<p align="center">Real time web services monitoring</p>
 <p align="center">
   <img src="_docs/vigilate-real-time-monitor.gif" alt="Real-time monitoring showcase">
 </p>
