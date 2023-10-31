@@ -10,6 +10,13 @@ import (
 )
 
 func NewKafkaWriterConfig() kafka.WriterConfig {
+	if os.Getenv("APP_ENV") == "docker" {
+		return kafka.WriterConfig{
+			Brokers: []string{"kafka:9092"},
+			Topic:   "health-check-results",
+		}
+	}
+
 	topic := os.Getenv("KAFKA_TOPIC")
 	broker := os.Getenv("KAFKA_BROKER")
 	username := os.Getenv("KAFKA_USERNAME")
@@ -34,6 +41,14 @@ func NewKafkaWriterConfig() kafka.WriterConfig {
 }
 
 func NewKafkaReaderConfig() kafka.ReaderConfig {
+	if os.Getenv("APP_ENV") == "docker" {
+		return kafka.ReaderConfig{
+			Brokers: []string{"kafka:9092"},
+			Topic:   "health-check-results",
+			GroupID: "health-check-results-consumer",
+		}
+	}
+
 	topic := os.Getenv("KAFKA_TOPIC")
 	broker := os.Getenv("KAFKA_BROKER")
 	groupID := os.Getenv("KAFKA_GROUP_ID")

@@ -107,7 +107,7 @@ func (hc *healthCheckUsecase) sendNotifications(server domain.RemoteServer) {
 	hc.kafkaProducer.SendHealthCheckResultToKafka(message, topic)
 
 	if user.NotificationPreferences.EmailEnabled {
-		err = email.ResendEmailSender(user.Email, server.Name, server.Address, timestamp)
+		err = email.SendEmail(user.Email, server.Name, server.Address, timestamp)
 
 		if err != nil {
 			log.Printf("Error sending email: %v", err)

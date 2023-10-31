@@ -1,2 +1,5 @@
-testdata
 Makefile
+LICENSE
+README.md
+.env.example
+_docs
