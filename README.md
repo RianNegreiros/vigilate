@@ -1,9 +1,11 @@
 # Vigilate
 
-<p align="center">Real time web services monitoring</p>
-<p align="center">
-  <img src="_docs/vigilate-real-time-monitor.gif" alt="Real-time monitoring showcase">
-</p>
+Vigilate is Full-Stack application for users to get updated with they web services health
+
+<figure align="center">
+  <img src="_docs/vigilate-real-time-monitor.gif" alt="Real time monitoring demonstration">
+  <figcaption><code>Real time monitoring demonstration</code></figcaption>
+</figure>
 
 ## Libraries and Tools
 
