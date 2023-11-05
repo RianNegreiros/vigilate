@@ -3,6 +3,12 @@
 Vigilate is Full-Stack application for users to get updated with they web services health
 
 <figure align="center">
+  <img src="_docs/vigilate-dashboard.png" alt="Dashboard">
+  <figcaption><code>Dashboard</code></figcaption>
+</figure>
+
+
+<figure align="center">
   <img src="_docs/vigilate-real-time-monitor.gif" alt="Real time monitoring demonstration">
   <figcaption><code>Real time monitoring demonstration</code></figcaption>
 </figure>
