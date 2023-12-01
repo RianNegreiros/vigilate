@@ -4,10 +4,6 @@ Vigilate is Full-Stack application for users to get updated with they web servic
 
 <img src="_docs/vigilate-dashboard.png" alt="Dashboard">
 
-<p align="center">
-  <img src="_docs/vigilate-real-time-monitor.gif" alt="Real time monitoring demonstration">
-</p>
-
 ## Libraries and Tools
 
 - [Go](https://go.dev/doc/install)
