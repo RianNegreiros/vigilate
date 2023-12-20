@@ -1,8 +1,7 @@
 "use client"
 
-import { format } from "date-fns";
 import Link from "next/link";
-import { startMonitoring, updateServer } from "../util/api";
+import { startMonitoring } from "../util/api";
 import { useRouter } from "next/navigation";
 import { Server, UpdateServer } from "../models";
 import UpdateServerModal from "./UpdateServerModal";
@@ -12,7 +11,7 @@ import DropdownMenu from "./DropdownMenu";
 interface ServerCardProps {
   server: Server;
   deleteServer: (id: string) => void;
-  updateServer: (server: UpdateServer, id:string) => void;
+  updateServer: (server: UpdateServer, id: string) => void;
 }
 
 export default function ServerCard({ server, deleteServer, updateServer }: ServerCardProps) {
@@ -74,7 +73,7 @@ export default function ServerCard({ server, deleteServer, updateServer }: Serve
                     Last Time Checked
                   </p>
                   <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                    {format(new Date(server.last_check_time), 'dd/MM/yyyy HH:mm:ss')} UTC
+                    {new Date(server.last_check_time).toLocaleString('en-US', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} UTC
                   </p>
                 </div>
               </div>
@@ -86,7 +85,7 @@ export default function ServerCard({ server, deleteServer, updateServer }: Serve
                     Next Time Check
                   </p>
                   <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                    {format(new Date(server.next_check_time), 'dd/MM/yyyy HH:mm:ss')} UTC
+                    {new Date(server.last_check_time).toLocaleString('en-US', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} UTC
                   </p>
                 </div>
               </div>
