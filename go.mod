@@ -3,10 +3,10 @@ module github.com/RianNegreiros/vigilate
 go 1.21.1
 
 require (
-	github.com/go-co-op/gocron v1.35.2
+	github.com/go-co-op/gocron v1.37.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/golang-migrate/migrate/v4 v4.16.2
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/lib/pq v1.10.9
