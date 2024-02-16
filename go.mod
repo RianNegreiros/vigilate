@@ -12,7 +12,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/pusher/pusher-http-go v4.0.1+incompatible
 	github.com/resendlabs/resend-go v1.7.0
-	github.com/segmentio/kafka-go v0.4.44
+	github.com/segmentio/kafka-go v0.4.47
 	golang.org/x/crypto v0.19.0
 )
 
